@@ -1,5 +1,6 @@
 import { ButtonLink } from '@/components'
 import { Cocktail } from '@/schema'
+import { trpc } from '@/utils/trpc'
 import {
   Card,
   CardBody,
@@ -10,9 +11,14 @@ import {
   HStack,
   IconButton,
   Image,
+  Skeleton,
   Stack,
+  Tag,
   Text,
+  Wrap,
+  WrapItem,
 } from '@chakra-ui/react'
+import { range } from 'lodash-es'
 import { MdOpenInNew } from 'react-icons/md'
 
 export type CocktailCardProp = {
@@ -24,6 +30,8 @@ export const CocktailCard = forwardRef<CocktailCardProp, 'div'>(function Cocktai
   { cocktail, includeActions, ...props },
   ref
 ) {
+  const tags = trpc.getTagsForCocktail.useQuery({ id: cocktail.id })
+
   return (
     <Card
       ref={ref}
@@ -42,31 +50,43 @@ export const CocktailCard = forwardRef<CocktailCardProp, 'div'>(function Cocktai
 
       <Stack>
         <CardBody>
-          <HStack>
-            <Heading as="h2" size="sm">
-              {cocktail.label}
-            </Heading>
+          <Stack>
+            <HStack>
+              <Heading as="h2" size="sm">
+                {cocktail.label}
+              </Heading>
 
-            {!!cocktail.url && (
-              <IconButton
-                aria-label="Open link in new window"
-                as="a"
-                href={cocktail.url}
-                icon={<MdOpenInNew />}
-                rel="noopener noreferrer nofollow"
-                size="sm"
-                target={cocktail.id}
-                variant="ghost"
-              />
-            )}
-          </HStack>
+              {!!cocktail.url && (
+                <IconButton
+                  aria-label="Open link in new window"
+                  as="a"
+                  href={cocktail.url}
+                  icon={<MdOpenInNew />}
+                  rel="noopener noreferrer nofollow"
+                  size="sm"
+                  target={cocktail.id}
+                  variant="ghost"
+                />
+              )}
+            </HStack>
 
-          <Text>{cocktail.description}</Text>
+            <Text lineHeight={1.2}>{cocktail.description}</Text>
+
+            <Wrap spacing="2">
+              {tags.isLoading
+                ? range(0, 3).map((i) => <Skeleton key={i}>Loading</Skeleton>)
+                : (tags.data ?? []).map(({ tag }) => (
+                    <WrapItem key={tag.id}>
+                      <Tag colorScheme="blue">{tag.label}</Tag>
+                    </WrapItem>
+                  ))}
+            </Wrap>
+          </Stack>
         </CardBody>
 
         {!!includeActions && (
-          <CardFooter>
-            <HStack>
+          <CardFooter pt="0">
+            <HStack justifyContent="flex-end" w="full">
               <ButtonLink href={`/cocktails/${cocktail.id}`}>View</ButtonLink>
               <ButtonLink href={`/cocktails/${cocktail.id}/edit`}>Edit</ButtonLink>
             </HStack>

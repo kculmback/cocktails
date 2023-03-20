@@ -4,8 +4,16 @@ import {
   CocktailSchema,
   Ingredient,
   IngredientSchema,
+  Tag,
+  TagSchema,
 } from '@/schema'
-import { getAllIngredientsForCocktail, putCocktail, putCocktailIngredients } from '@/utils/dynamoDb'
+import {
+  getAllIngredientsForCocktail,
+  getAllTagsForCocktail,
+  putCocktail,
+  putCocktailIngredients,
+  putCocktailTags,
+} from '@/utils/dynamoDb'
 import { differenceBy } from 'lodash-es'
 import { v4 as uuid } from 'uuid'
 import { z } from 'zod'
@@ -15,32 +23,49 @@ export const UpsertCocktailSchema = CocktailSchema.omit({ id: true, inStock: tru
   z.object({
     id: z.string().optional(),
     ingredients: z.array(IngredientSchema.and(z.object({ amount: z.string().min(1) }))),
+    tags: z
+      .array(TagSchema.omit({ id: true }).and(z.object({ id: z.string().min(2).optional() })))
+      .optional(),
   })
 )
 
 export const upsertCocktail = procedure.input(UpsertCocktailSchema).mutation(async ({ input }) => {
-  const { ingredients, ...cocktail } = input
+  const { ingredients, tags = [], ...cocktail } = input
 
+  // cocktail
   const cocktailWithId: Cocktail = {
     ...cocktail,
     id: cocktail.id ?? uuid(),
     inStock: ingredients.every(({ inStock }) => inStock),
   }
+
+  const dbCocktail = await putCocktail(cocktailWithId)
+
+  // ingredients
   const ingredientsWithId: (Ingredient & Pick<CocktailIngredient, 'amount'>)[] = ingredients.map(
     (ingredient) => ({
       ...ingredient,
       id: ingredient.id ?? uuid(),
     })
   )
-
-  const dbCocktail = await putCocktail(cocktailWithId)
-
   const currentIngredients = await getAllIngredientsForCocktail(dbCocktail.id)
   const removedIngredients = differenceBy(currentIngredients, ingredientsWithId, (value) =>
     'id' in value ? value.id : value.ingredient.id
   ).map((ingredient) => ingredient.ingredient.id)
 
   await putCocktailIngredients(dbCocktail, ingredientsWithId, removedIngredients)
+
+  // tags
+  const tagsWithId: Tag[] = tags.map((tag) => ({
+    ...tag,
+    id: tag.id ?? uuid(),
+  }))
+  const currentTags = await getAllTagsForCocktail(dbCocktail.id)
+  const removedTags = differenceBy(currentTags, tagsWithId, (item) =>
+    'id' in item ? item.id : item.tag.id
+  ).map(({ tag }) => tag.id)
+
+  await putCocktailTags(dbCocktail.id, tagsWithId, removedTags)
 
   return {
     ...cocktailWithId,

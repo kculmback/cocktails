@@ -1,5 +1,5 @@
 import { IngredientFormDrawer } from '@/components'
-import { Cocktail, CocktailIngredient, Ingredient } from '@/schema'
+import { Cocktail, CocktailIngredient, Ingredient, Tag } from '@/schema'
 import { UpsertCocktail } from '@/server/routers/upsertCocktail'
 import { trpc } from '@/utils/trpc'
 import {
@@ -29,7 +29,7 @@ export type CocktailFormSchema = Omit<UpsertCocktail, 'ingredients'> & {
 }
 
 export type CocktailFormProps = {
-  cocktail?: Cocktail & { ingredients: CocktailIngredient[] }
+  cocktail?: Cocktail & { ingredients: CocktailIngredient[]; tags?: Tag[] }
 }
 
 export function CocktailForm({ cocktail }: CocktailFormProps) {
@@ -45,12 +45,15 @@ export function CocktailForm({ cocktail }: CocktailFormProps) {
               inStock: ingredient.inStock,
             },
           })),
+          tags: cocktail.tags ?? [],
         }
       : {
           label: '',
           ingredients: [{ amount: '' }],
+          tags: [{ label: '' }],
         },
   })
+
   const {
     control,
     handleSubmit,
@@ -67,7 +70,10 @@ export function CocktailForm({ cocktail }: CocktailFormProps) {
     },
   })
 
+  const tags = trpc.getAllTags.useQuery()
+
   const mutation = trpc.upsertCocktail.useMutation()
+  const tagMutation = trpc.upsertTag.useMutation()
 
   const onSubmit = handleSubmit(async ({ ingredients, ...cocktail }) => {
     await mutation.mutateAsync({
@@ -78,7 +84,7 @@ export function CocktailForm({ cocktail }: CocktailFormProps) {
 
   return (
     <chakra.form onSubmit={onSubmit}>
-      <Stack divider={<Divider />} spacing="4">
+      <Stack divider={<Divider />} spacing="6">
         <Stack spacing="4">
           <FormControl isInvalid={!!errors.label}>
             <FormLabel htmlFor="label">Label</FormLabel>
@@ -119,7 +125,7 @@ export function CocktailForm({ cocktail }: CocktailFormProps) {
 
           <FormControl isInvalid={!!errors.url}>
             <FormLabel htmlFor="url">Recipe URL</FormLabel>
-            <Input id="url" placeholder="https://www.recipes/cocktai" {...register('url')} />
+            <Input id="url" placeholder="https://www.recipes/cocktail" {...register('url')} />
             <FormErrorMessage>{errors.url?.message}</FormErrorMessage>
           </FormControl>
         </Stack>
@@ -140,6 +146,37 @@ export function CocktailForm({ cocktail }: CocktailFormProps) {
           </Button>
         </Stack>
 
+        <Stack>
+          <FormControl flexGrow={1} id="tags" isInvalid={!!errors.tags}>
+            <FormLabel htmlFor="tags">Tags</FormLabel>
+
+            <Controller
+              control={control}
+              name="tags"
+              render={({ field }) => (
+                <CreatableSelect
+                  {...field}
+                  chakraStyles={{
+                    container: () => ({ flexGrow: 1 }),
+                  }}
+                  getOptionLabel={(option) => option.label}
+                  getOptionValue={(option) => option.id ?? option.label}
+                  isLoading={tags.isLoading || tagMutation.isLoading}
+                  isMulti
+                  options={tags.data ?? []}
+                  placeholder="Tag"
+                  onCreateOption={async (label) => {
+                    const tag = await tagMutation.mutateAsync({ label })
+                    field.onChange([...(field.value as Tag[]), tag])
+                  }}
+                />
+              )}
+            />
+
+            <FormErrorMessage>{errors?.tags?.message}</FormErrorMessage>
+          </FormControl>
+        </Stack>
+
         <Button isLoading={isSubmitting} type="submit">
           Submit
         </Button>
@@ -151,7 +188,7 @@ export function CocktailForm({ cocktail }: CocktailFormProps) {
 type IngredientRowProps = {
   index: number
   form: UseFormReturn<CocktailFormSchema>
-} & UseFieldArrayReturn<CocktailFormSchema>
+} & UseFieldArrayReturn<CocktailFormSchema, 'ingredients', 'id'>
 
 function IngredientRow({ form, index, remove, update }: IngredientRowProps) {
   const ingredients = trpc.getAllIngredients.useQuery()
@@ -182,8 +219,8 @@ function IngredientRow({ form, index, remove, update }: IngredientRowProps) {
                 value={value}
                 onBlur={onBlur}
                 onChange={onChange}
-                onCreateOption={(ingredientLabel) => {
-                  setNewIngredientLabel(ingredientLabel)
+                onCreateOption={(label) => {
+                  setNewIngredientLabel(label)
                 }}
               />
 

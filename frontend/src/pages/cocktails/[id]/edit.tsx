@@ -9,6 +9,7 @@ export default function CocktailEdit() {
   const id = router.query.id as string
 
   const cocktail = trpc.getCocktail.useQuery({ id }, { enabled: !!id })
+  const tags = trpc.getTagsForCocktail.useQuery({ id }, { enabled: !!id })
 
   return (
     <>
@@ -23,7 +24,11 @@ export default function CocktailEdit() {
               Edit
             </Heading>
 
-            {!!cocktail.data && <CocktailForm cocktail={cocktail.data} />}
+            {!!(cocktail.data && !tags.isLoading) && (
+              <CocktailForm
+                cocktail={{ ...cocktail.data, tags: tags.data?.map(({ tag }) => tag) }}
+              />
+            )}
           </Stack>
         </Container>
       </chakra.main>

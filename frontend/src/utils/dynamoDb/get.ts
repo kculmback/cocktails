@@ -1,4 +1,4 @@
-import { Cocktail, CocktailIngredient, Ingredient } from '@/schema'
+import { Cocktail, CocktailIngredient, CocktailTag, Ingredient, Tag } from '@/schema'
 import {
   GetItemCommand,
   GetItemCommandInput,
@@ -13,6 +13,8 @@ import {
   INGREDIENT_PK,
   INGREDIENT_SK,
   tableName,
+  TAG_PK,
+  TAG_SK,
 } from './constants'
 
 export async function getAllCocktails(filter?: 'all' | 'available' | 'not-available') {
@@ -42,7 +44,9 @@ export async function getAllCocktails(filter?: 'all' | 'available' | 'not-availa
     throw new Error('Invalid')
   }
 
-  const parsedResultItems = result.Items?.map((item) => unmarshall(item) as Cocktail)
+  const parsedResultItems = result.Items?.map((item) => unmarshall(item) as Cocktail).sort((a, b) =>
+    a.label.localeCompare(b.label)
+  )
 
   return parsedResultItems
 }
@@ -73,7 +77,9 @@ export async function getInStockCocktails() {
     throw new Error('Invalid')
   }
 
-  const parsedResultItems = result.Items?.map((item) => unmarshall(item) as Cocktail)
+  const parsedResultItems = result.Items?.map((item) => unmarshall(item) as Cocktail).sort((a, b) =>
+    a.label.localeCompare(b.label)
+  )
 
   return parsedResultItems
 }
@@ -101,7 +107,9 @@ export async function getAllIngredients() {
     throw new Error('Invalid')
   }
 
-  const parsedResultItems = result.Items?.map((item) => unmarshall(item) as Ingredient)
+  const parsedResultItems = result.Items?.map((item) => unmarshall(item) as Ingredient).sort(
+    (a, b) => a.label.localeCompare(b.label)
+  )
 
   return parsedResultItems
 }
@@ -128,7 +136,9 @@ export async function getAllIngredientsForCocktail(cocktailId: string) {
     throw new Error('Invalid')
   }
 
-  const parsedResultItems = result.Items?.map((item) => unmarshall(item) as CocktailIngredient)
+  const parsedResultItems = result.Items?.map(
+    (item) => unmarshall(item) as CocktailIngredient
+  ).sort((a, b) => a.ingredient.label.localeCompare(b.ingredient.label))
 
   return parsedResultItems
 }
@@ -156,7 +166,9 @@ export async function getAllCocktailsForIngredient(ingredientId: string) {
     throw new Error('Invalid')
   }
 
-  const parsedResultItems = result.Items?.map((item) => unmarshall(item) as CocktailIngredient)
+  const parsedResultItems = result.Items?.map(
+    (item) => unmarshall(item) as CocktailIngredient
+  ).sort((a, b) => a.cocktail.label.localeCompare(b.cocktail.label))
 
   return parsedResultItems
 }
@@ -195,4 +207,93 @@ export async function getIngredient(ingredientId: string) {
   const item = unmarshall(results.Item) as Ingredient
 
   return item
+}
+
+export async function getAllTags() {
+  const input: QueryCommandInput = {
+    TableName: tableName,
+    IndexName: 'GSI1',
+    KeyConditionExpression: '#pk = :tagPartitionKey and begins_with(#sk, :sk)',
+    ExpressionAttributeNames: {
+      '#pk': 'GSI-PK-1',
+      '#sk': 'GSI-SK-1',
+    },
+    ExpressionAttributeValues: marshall({
+      ':tagPartitionKey': TAG_SK,
+      ':sk': TAG_SK,
+    }),
+  }
+
+  const result = await dynamoDb.send(new QueryCommand(input))
+
+  const statusCode = result?.$metadata?.httpStatusCode ?? 0
+
+  if (statusCode / 100 > 2 || !result.Items) {
+    throw new Error('Invalid')
+  }
+
+  const parsedResultItems = result.Items?.map((item) => unmarshall(item) as Tag).sort((a, b) =>
+    a.label.localeCompare(b.label)
+  )
+
+  return parsedResultItems
+}
+
+export async function getAllTagsForCocktail(cocktailId: string) {
+  const input: QueryCommandInput = {
+    TableName: tableName,
+    KeyConditionExpression: '#pk = :cocktailPartitionKey and begins_with(#sk, :sk)',
+    ExpressionAttributeNames: {
+      '#pk': 'PK',
+      '#sk': 'SK',
+    },
+    ExpressionAttributeValues: marshall({
+      ':cocktailPartitionKey': COCKTAIL_PK(cocktailId),
+      ':sk': TAG_SK,
+    }),
+  }
+
+  const result = await dynamoDb.send(new QueryCommand(input))
+
+  const statusCode = result?.$metadata?.httpStatusCode ?? 0
+
+  if (statusCode / 100 > 2 || !result.Items) {
+    throw new Error('Invalid')
+  }
+
+  const parsedResultItems = result.Items?.map((item) => unmarshall(item) as CocktailTag).sort(
+    (a, b) => a.tag.label.localeCompare(b.tag.label)
+  )
+
+  return parsedResultItems
+}
+
+export async function getAllCocktailsForTag(tagId: string) {
+  const input: QueryCommandInput = {
+    TableName: tableName,
+    IndexName: 'GSI1',
+    KeyConditionExpression: '#pk = :tagPartitionKey and begins_with(#sk, :sk)',
+    ExpressionAttributeNames: {
+      '#pk': 'GSI-PK-1',
+      '#sk': 'GSI-SK-1',
+    },
+    ExpressionAttributeValues: marshall({
+      ':tagPartitionKey': TAG_PK(tagId),
+      ':sk': COCKTAIL_SK,
+    }),
+  }
+
+  const result = await dynamoDb.send(new QueryCommand(input))
+
+  const statusCode = result?.$metadata?.httpStatusCode ?? 0
+
+  if (statusCode / 100 > 2 || !result.Items) {
+    throw new Error('Invalid')
+  }
+
+  const parsedResultItems = result.Items?.map((item) => unmarshall(item) as CocktailTag).sort(
+    (a, b) => a.cocktail.label.localeCompare(b.cocktail.label)
+  )
+
+  return parsedResultItems
 }

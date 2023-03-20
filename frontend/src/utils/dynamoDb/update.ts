@@ -1,4 +1,4 @@
-import { Cocktail, CocktailIngredient, Ingredient } from '@/schema'
+import { Cocktail, CocktailIngredient, CocktailTag, Ingredient, Tag } from '@/schema'
 import {
   BatchWriteItemCommand,
   BatchWriteItemCommandInput,
@@ -19,8 +19,15 @@ import {
   INGREDIENT_SK,
   marshallOptions,
   tableName,
+  TAG_PK,
+  TAG_SK,
 } from './constants'
-import { getAllCocktailsForIngredient, getAllIngredientsForCocktail } from './get'
+import {
+  getAllCocktailsForIngredient,
+  getAllCocktailsForTag,
+  getAllIngredientsForCocktail,
+  getCocktail,
+} from './get'
 
 export async function putCocktail(cocktail: Cocktail) {
   const id = cocktail.id
@@ -112,12 +119,7 @@ export async function updateCocktailsIngredients(ingredient: Ingredient) {
         'GSI-SK-1': cocktailPK,
         lastUpdated,
         cocktail: cocktailIngredient.cocktail,
-        ingredient: cocktailIngredient.ingredient,
-        // cocktailId: cocktailIngredient.cocktailId,
-        // cocktailLabel: cocktailIngredient.cocktailLabel,
-        // ingredientId: cocktailIngredient.ingredientId,
-        // ingredientLabel: ingredient.label,
-        // inStock: ingredient.inStock,
+        ingredient,
         amount: cocktailIngredient.amount,
       }
 
@@ -230,6 +232,161 @@ export async function putCocktailIngredients(
         Key: marshall({
           PK: cocktailPK,
           SK: ingredientPK,
+        }),
+      },
+    }
+  })
+
+  const batches = chunk([...inputs, ...removeInputs], 25)
+
+  await Promise.all(
+    batches.map(async (batch) => {
+      const batchCmd: BatchWriteItemCommandInput = {
+        RequestItems: {
+          [tableName]: batch,
+        },
+      }
+
+      await dynamoDb.send(new BatchWriteItemCommand(batchCmd))
+    })
+  )
+}
+
+export async function putTag(tag: Tag) {
+  const id = tag.id
+  const PK = TAG_PK(id)
+  const SK = TAG_SK
+
+  const updatedItem: DbItem<Tag> = {
+    id,
+    PK,
+    SK,
+    'GSI-PK-1': SK,
+    'GSI-SK-1': PK,
+    lastUpdated: new Date().toISOString(),
+    label: tag.label,
+  }
+
+  const input: PutItemCommandInput = {
+    Item: marshall(updatedItem, marshallOptions),
+    TableName: tableName,
+  }
+
+  const result = await dynamoDb.send(new PutItemCommand(input))
+
+  const statusCode = result?.$metadata?.httpStatusCode ?? 0
+
+  if (statusCode / 100 > 2) {
+    throw new Error('Invalid')
+  }
+
+  updateCocktailsTags(tag)
+
+  return updatedItem
+}
+
+export async function updateCocktailsTags(tag: Tag) {
+  const lastUpdated = new Date().toISOString()
+
+  try {
+    const cocktailsForTag = await getAllCocktailsForTag(tag.id)
+
+    // update joins
+
+    const inputs: WriteRequest[] = cocktailsForTag.map((cocktailTag) => {
+      const tagPK = TAG_PK(cocktailTag.tag.id)
+      const cocktailPK = COCKTAIL_PK(cocktailTag.cocktail.id)
+
+      const item: Omit<DbItem<CocktailTag>, 'id'> = {
+        PK: cocktailPK,
+        SK: tagPK,
+        'GSI-PK-1': tagPK,
+        'GSI-SK-1': cocktailPK,
+        lastUpdated,
+        cocktail: cocktailTag.cocktail,
+        tag,
+      }
+
+      return {
+        PutRequest: {
+          Item: marshall(item, marshallOptions),
+        },
+      }
+    })
+
+    const batches = chunk(inputs, 25)
+
+    await Promise.all(
+      batches.map(async (batch) => {
+        const batchCmd: BatchWriteItemCommandInput = {
+          RequestItems: {
+            [tableName]: batch,
+          },
+        }
+
+        await dynamoDb.send(new BatchWriteItemCommand(batchCmd))
+      })
+    )
+  } catch (e) {}
+}
+
+export async function putCocktailTags(
+  cocktailId: string,
+  tags: Tag[],
+  removedTagsIds: string[] = []
+) {
+  const cocktailPK = COCKTAIL_PK(cocktailId)
+
+  const cocktail = await getCocktail(cocktailId)
+
+  if (!cocktail) {
+    throw new Error('no cocktail')
+  }
+
+  const inputs: WriteRequest[] = tags
+    .map((tag): WriteRequest[] => {
+      const tagId = tag.id
+
+      const tagPK = TAG_PK(tagId)
+
+      const lastUpdated = new Date().toISOString()
+
+      const tagItem: DbItem<Tag> = {
+        id: tagId,
+        PK: tagPK,
+        SK: TAG_SK,
+        'GSI-PK-1': TAG_SK,
+        'GSI-SK-1': tagPK,
+        lastUpdated,
+        label: tag.label,
+      }
+
+      const cocktailTagItem: Omit<DbItem<CocktailTag>, 'id'> = {
+        PK: cocktailPK,
+        SK: tagPK,
+        'GSI-PK-1': tagPK,
+        'GSI-SK-1': cocktailPK,
+        lastUpdated,
+        cocktail,
+        tag: tagItem,
+      }
+
+      return [tagItem, cocktailTagItem].map((item) => ({
+        PutRequest: {
+          Item: marshall(item, marshallOptions),
+        },
+      }))
+    })
+    .flat()
+
+  const removeInputs: WriteRequest[] = removedTagsIds.map((tagId) => {
+    const tagPK = TAG_PK(tagId)
+
+    return {
+      DeleteRequest: {
+        Key: marshall({
+          PK: cocktailPK,
+          SK: tagPK,
         }),
       },
     }
