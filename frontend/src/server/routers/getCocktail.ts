@@ -3,7 +3,6 @@ import { z } from 'zod'
 import { procedure } from '../trpc'
 
 export const getCocktail = procedure
-  // using zod schema to validate and infer input values
   .input(
     z.object({
       id: z.string(),
@@ -11,6 +10,8 @@ export const getCocktail = procedure
   )
   .query(async ({ input }) => {
     const cocktail = await getDbCocktail(input.id)
+    if (!cocktail) return
+
     const ingredients = await getAllIngredientsForCocktail(input.id)
 
     return { ...cocktail, ingredients }

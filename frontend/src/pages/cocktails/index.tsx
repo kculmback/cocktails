@@ -3,8 +3,8 @@ import { trpc } from '@/utils/trpc'
 import { Container, Heading, Stack } from '@chakra-ui/react'
 import Head from 'next/head'
 
-export default function Home() {
-  const cocktails = trpc.getAllCocktails.useQuery({ filter: 'available' })
+export default function AllCocktails() {
+  const cocktails = trpc.getAllCocktails.useQuery({ filter: 'all' })
 
   return (
     <>
@@ -14,11 +14,13 @@ export default function Home() {
 
       <main>
         <Container maxW="container.lg">
-          <Stack spacing="4">
-            <Heading as="h1" size="lg">
-              Available Cocktails
-            </Heading>
-            <CocktailsList cocktails={cocktails.data ?? []} />
+          <Stack>
+            <Stack spacing="4">
+              <Heading as="h1" size="lg">
+                All Cocktails
+              </Heading>
+              <CocktailsList cocktails={cocktails.data ?? []} includeActions />
+            </Stack>
           </Stack>
         </Container>
       </main>

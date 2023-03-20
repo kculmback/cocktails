@@ -5,7 +5,8 @@ import {
   Ingredient,
   IngredientSchema,
 } from '@/schema'
-import { putCocktail, putCocktailIngredients } from '@/utils/dynamoDb'
+import { getAllIngredientsForCocktail, putCocktail, putCocktailIngredients } from '@/utils/dynamoDb'
+import { differenceBy } from 'lodash-es'
 import { v4 as uuid } from 'uuid'
 import { z } from 'zod'
 import { procedure } from '../trpc'
@@ -34,7 +35,12 @@ export const upsertCocktail = procedure.input(UpsertCocktailSchema).mutation(asy
 
   const dbCocktail = await putCocktail(cocktailWithId)
 
-  await putCocktailIngredients(dbCocktail, ingredientsWithId)
+  const currentIngredients = await getAllIngredientsForCocktail(dbCocktail.id)
+  const removedIngredients = differenceBy(currentIngredients, ingredientsWithId, (value) =>
+    'id' in value ? value.id : value.ingredient.id
+  ).map((ingredient) => ingredient.ingredient.id)
+
+  await putCocktailIngredients(dbCocktail, ingredientsWithId, removedIngredients)
 
   return {
     ...cocktailWithId,

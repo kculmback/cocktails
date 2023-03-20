@@ -1,4 +1,4 @@
-import { forwardRef, chakra, HTMLChakraProps } from '@chakra-ui/react'
+import { Button, ButtonProps, chakra, forwardRef, HTMLChakraProps } from '@chakra-ui/react'
 import NextLink, { LinkProps as NextLinkProps } from 'next/link'
 import type { FC, RefAttributes } from 'react'
 
@@ -20,4 +20,8 @@ export const Link: LinkComponent = forwardRef<LinkProps, typeof NextLink>(functi
       {children}
     </chakra.a>
   )
+})
+
+export const ButtonLink = forwardRef<ButtonProps & LinkProps, 'a'>(function ButtonLink(props, ref) {
+  return <Button ref={ref} {...props} as={Link} />
 })
