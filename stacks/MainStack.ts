@@ -1,5 +1,10 @@
 import { NextjsSite, StackContext, Table } from 'sst/constructs'
 
+const nextAuthUrl = process.env.NEXTAUTH_URL ?? ''
+const googleId = process.env.GOOGLE_ID ?? ''
+const googleSecret = process.env.GOOGLE_SECRET ?? ''
+const emailWhitelist = process.env.EMAIL_WHITELIST ?? ''
+
 export function MainStack({ app, stack }: StackContext) {
   // Create the table
   const table = new Table(stack, 'Cocktails', {
@@ -28,6 +33,10 @@ export function MainStack({ app, stack }: StackContext) {
       // Pass the table details to our app
       REGION: app.region,
       TABLE_NAME: table.tableName,
+      GOOGLE_ID: googleId,
+      GOOGLE_SECRET: googleSecret,
+      NEXTAUTH_URL: nextAuthUrl,
+      EMAIL_WHITELIST: emailWhitelist,
     },
   })
 
