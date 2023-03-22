@@ -34,13 +34,7 @@ export const CocktailCard = forwardRef<CocktailCardProp, 'div'>(function Cocktai
   const tags = trpc.getTagsForCocktail.useQuery({ id: cocktail.id })
 
   return (
-    <Card
-      ref={ref}
-      direction={{ base: 'column', md: 'row' }}
-      overflow="hidden"
-      variant="outline"
-      {...props}
-    >
+    <Card ref={ref} direction={{ base: 'column', md: 'row' }} overflow="hidden" {...props}>
       <CocktailImage
         flexShrink={0}
         maxW={{ base: '100%', md: '300px' }}
