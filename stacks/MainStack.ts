@@ -1,6 +1,5 @@
 import { NextjsSite, StackContext, Table } from 'sst/constructs'
 
-const nextAuthUrl = process.env.NEXTAUTH_URL ?? ''
 const googleId = process.env.GOOGLE_ID ?? ''
 const googleSecret = process.env.GOOGLE_SECRET ?? ''
 const emailWhitelist = process.env.EMAIL_WHITELIST ?? ''
@@ -26,9 +25,13 @@ export function MainStack({ app, stack }: StackContext) {
     },
   })
 
+  const customDomain = `${app.stage === 'prod' ? '' : `${app.stage}.`}cocktails.zobelculmbacks.com`
+  const nextAuthUrl = process.env.NEXTAUTH_URL ?? `https://${customDomain}`
+
   // Create a Next.js site
   const site = new NextjsSite(stack, 'Site', {
     path: 'frontend',
+    customDomain,
     environment: {
       // Pass the table details to our app
       REGION: app.region,
