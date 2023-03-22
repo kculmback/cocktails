@@ -46,6 +46,7 @@ export async function putCocktail(cocktail: Cocktail) {
     steps: cocktail.steps,
     inStock: cocktail.inStock,
     description: cocktail.description,
+    instructions: cocktail.instructions,
     image: cocktail.image,
   }
 
@@ -208,11 +209,6 @@ export async function putCocktailIngredients(
         lastUpdated,
         cocktail,
         ingredient: ingredientItem,
-        // cocktailId: cocktail.id,
-        // cocktailLabel: cocktail.label,
-        // ingredientId: ingredientItem.id,
-        // ingredientLabel: ingredientItem.label,
-        // inStock: ingredientItem.inStock,
         amount,
       }
 

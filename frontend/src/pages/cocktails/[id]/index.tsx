@@ -1,4 +1,4 @@
-import { ButtonLink } from '@/components'
+import { ButtonLink, Markdown } from '@/components'
 import { CocktailImage } from '@/components/Cocktails/CocktailImage'
 import { trpc } from '@/utils/trpc'
 import {
@@ -32,8 +32,8 @@ export default function CocktailDetail() {
   const router = useRouter()
   const id = router.query.id as string
 
-  const cocktail = trpc.getCocktail.useQuery({ id })
-  const tags = trpc.getTagsForCocktail.useQuery({ id })
+  const cocktail = trpc.getCocktail.useQuery({ id }, { enabled: !!id })
+  const tags = trpc.getTagsForCocktail.useQuery({ id }, { enabled: !!id })
 
   return (
     <>
@@ -112,6 +112,13 @@ export default function CocktailDetail() {
                         </ListItem>
                       ))}
                     </OrderedList>
+                  </Stack>
+
+                  <Stack>
+                    <Heading as="h2" size="sm">
+                      Instructions
+                    </Heading>
+                    <Markdown>{cocktail.data.instructions ?? 'No instructions.'}</Markdown>
                   </Stack>
                 </Stack>
               </CardBody>

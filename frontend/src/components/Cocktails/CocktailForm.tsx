@@ -1,4 +1,4 @@
-import { IngredientFormDrawer } from '@/components'
+import { IngredientFormDrawer, Markdown } from '@/components'
 import { Cocktail, CocktailIngredient, Ingredient, Tag } from '@/schema'
 import { UpsertCocktail } from '@/server/routers/upsertCocktail'
 import { trpc } from '@/utils/trpc'
@@ -106,6 +106,8 @@ export function CocktailForm({ cocktail, onSubmitted }: CocktailFormProps) {
     })
   })
 
+  const [previewInstructions, setPreviewInstructions] = useState(false)
+
   return (
     <chakra.form onSubmit={onSubmit}>
       <Stack divider={<Divider />} spacing="6">
@@ -166,6 +168,26 @@ export function CocktailForm({ cocktail, onSubmitted }: CocktailFormProps) {
             Add Ingredient
           </Button>
         </Stack>
+
+        <FormControl isInvalid={!!errors.instructions}>
+          <HStack justifyContent="space-between" mb="2">
+            <FormLabel htmlFor="instructions">Instructions</FormLabel>
+            <Button size="sm" onClick={() => setPreviewInstructions((value) => !value)}>
+              {previewInstructions ? 'Edit' : 'Preview'}
+            </Button>
+          </HStack>
+          {previewInstructions ? (
+            <Markdown>{form.getValues().instructions ?? ''}</Markdown>
+          ) : (
+            <Textarea
+              id="instructions"
+              placeholder="Instructions"
+              rows={8}
+              {...register('instructions', { maxLength: { value: 1500, message: 'Too long' } })}
+            />
+          )}
+          <FormErrorMessage>{errors.instructions?.message}</FormErrorMessage>
+        </FormControl>
 
         <Stack>
           <FormControl flexGrow={1} id="tags" isInvalid={!!errors.tags}>

@@ -6,6 +6,7 @@ export const CocktailSchema = z.object({
   url: z.string().optional().nullable(),
   image: z.string().optional().nullable(),
   description: z.string().optional().nullable(),
+  instructions: z.string().optional().nullable(),
   steps: z.array(z.string().min(2)).optional().nullable(),
   inStock: z.boolean().default(true),
 })
