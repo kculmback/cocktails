@@ -1,8 +1,11 @@
 import { NextjsSite, StackContext, Table } from 'sst/constructs'
 
+const hostedZone = process.env.HOSTED_ZONE ?? ''
+
+const emailWhitelist = process.env.EMAIL_WHITELIST ?? ''
+
 const googleId = process.env.GOOGLE_ID ?? ''
 const googleSecret = process.env.GOOGLE_SECRET ?? ''
-const emailWhitelist = process.env.EMAIL_WHITELIST ?? ''
 
 export function MainStack({ app, stack }: StackContext) {
   // Create the table
@@ -25,13 +28,17 @@ export function MainStack({ app, stack }: StackContext) {
     },
   })
 
-  const customDomain = `${app.stage === 'prod' ? '' : `${app.stage}.`}cocktails.zobelculmbacks.com`
-  const nextAuthUrl = process.env.NEXTAUTH_URL ?? `https://${customDomain}`
+  const domainName = `${app.stage === 'prod' ? '' : `${app.stage}.`}${hostedZone}`
+
+  const nextAuthUrl = process.env.NEXTAUTH_URL ?? `https://${domainName}`
 
   // Create a Next.js site
   const site = new NextjsSite(stack, 'Site', {
     path: 'frontend',
-    customDomain,
+    customDomain: {
+      domainName,
+      hostedZone,
+    },
     environment: {
       // Pass the table details to our app
       REGION: app.region,
