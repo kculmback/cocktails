@@ -22,7 +22,7 @@ import { range } from 'lodash-es'
 import { MdOpenInNew } from 'react-icons/md'
 
 export type CocktailCardProp = {
-  cocktail: Cocktail
+  cocktail: Omit<Cocktail, 'inStock'>
   includeActions?: boolean
 } & CardProps
 

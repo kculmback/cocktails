@@ -3,7 +3,7 @@ import { Stack } from '@chakra-ui/react'
 import { CocktailCard } from './CocktailCard'
 
 export type CocktailsListProps = {
-  cocktails: Cocktail[]
+  cocktails: Omit<Cocktail, 'inStock'>[]
   includeActions?: boolean
 }
 

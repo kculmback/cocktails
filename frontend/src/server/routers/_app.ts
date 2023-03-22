@@ -3,6 +3,7 @@ import { getAllCocktails } from './getAllCocktails'
 import { getAllIngredients } from './getAllIngredients'
 import { getAllTags } from './getAllTags'
 import { getCocktail } from './getCocktail'
+import { getCocktailsForTag } from './getCocktailsForTag'
 import { getIngredient } from './getIngredient'
 import { getTagsForCocktail } from './getTagsForCocktail'
 import { upsertCocktail } from './upsertCocktail'
@@ -14,6 +15,7 @@ export const appRouter = router({
   getAllIngredients,
   getAllTags,
   getCocktail,
+  getCocktailsForTag,
   getIngredient,
   getTagsForCocktail,
   upsertCocktail,

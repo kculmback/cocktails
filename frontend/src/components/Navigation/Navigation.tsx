@@ -6,7 +6,7 @@ export function Navigation() {
   const { data: session } = useSession()
 
   return (
-    <HStack justifyContent="space-between" mb="6" px="4" py="2" shadow="md">
+    <HStack bg="white" justifyContent="space-between" mb="6" px="4" py="2" shadow="md">
       <HStack>
         {!!session && (
           <>
