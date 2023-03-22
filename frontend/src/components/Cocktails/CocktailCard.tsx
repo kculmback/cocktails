@@ -1,4 +1,4 @@
-import { ButtonLink } from '@/components'
+import { ButtonLink, InStockBadge } from '@/components'
 import { Cocktail } from '@/schema'
 import { trpc } from '@/utils/trpc'
 import {
@@ -10,7 +10,6 @@ import {
   Heading,
   HStack,
   IconButton,
-  Image,
   Skeleton,
   Stack,
   Tag,
@@ -18,11 +17,13 @@ import {
   Wrap,
   WrapItem,
 } from '@chakra-ui/react'
-import { range } from 'lodash-es'
+import { isNil, range } from 'lodash-es'
 import { MdOpenInNew } from 'react-icons/md'
+import { CocktailImage } from './CocktailImage'
+import type { SetOptional } from 'type-fest'
 
 export type CocktailCardProp = {
-  cocktail: Omit<Cocktail, 'inStock'>
+  cocktail: SetOptional<Cocktail, 'inStock'>
   includeActions?: boolean
 } & CardProps
 
@@ -40,34 +41,37 @@ export const CocktailCard = forwardRef<CocktailCardProp, 'div'>(function Cocktai
       variant="outline"
       {...props}
     >
-      <Image
-        alt="Cocktail"
-        fallbackSrc="https://cdn-icons-png.flaticon.com/512/4474/4474385.png"
+      <CocktailImage
+        flexShrink={0}
         maxW={{ base: '100%', md: '300px' }}
         objectFit="cover"
         src={cocktail.image ?? undefined}
       />
 
-      <Stack>
+      <Stack w="full">
         <CardBody>
           <Stack>
-            <HStack>
-              <Heading as="h2" size="sm">
-                {cocktail.label}
-              </Heading>
+            <HStack justifyContent="space-between">
+              <HStack>
+                <Heading as="h2" size="sm">
+                  {cocktail.label}
+                </Heading>
 
-              {!!cocktail.url && (
-                <IconButton
-                  aria-label="Open link in new window"
-                  as="a"
-                  href={cocktail.url}
-                  icon={<MdOpenInNew />}
-                  rel="noopener noreferrer nofollow"
-                  size="sm"
-                  target={cocktail.id}
-                  variant="ghost"
-                />
-              )}
+                {!!cocktail.url && (
+                  <IconButton
+                    aria-label="Open link in new window"
+                    as="a"
+                    href={cocktail.url}
+                    icon={<MdOpenInNew />}
+                    rel="noopener noreferrer nofollow"
+                    size="sm"
+                    target={cocktail.id}
+                    variant="ghost"
+                  />
+                )}
+              </HStack>
+
+              {!isNil(cocktail.inStock) && <InStockBadge inStock={cocktail.inStock} />}
             </HStack>
 
             <Text lineHeight={1.2}>{cocktail.description}</Text>

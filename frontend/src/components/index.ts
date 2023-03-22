@@ -1,4 +1,5 @@
 export * from './Cocktails'
 export * from './Ingredients'
+export * from './InStockBadge'
 export * from './Link'
 export * from './Navigation'

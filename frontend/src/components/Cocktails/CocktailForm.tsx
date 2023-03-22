@@ -13,6 +13,7 @@ import {
   Input,
   Stack,
   Textarea,
+  useToast,
 } from '@chakra-ui/react'
 import { CreatableSelect } from 'chakra-react-select'
 import { useState } from 'react'
@@ -30,9 +31,10 @@ export type CocktailFormSchema = Omit<UpsertCocktail, 'ingredients'> & {
 
 export type CocktailFormProps = {
   cocktail?: Cocktail & { ingredients: CocktailIngredient[]; tags?: Tag[] }
+  onSubmitted?: (cocktail: Cocktail) => void
 }
 
-export function CocktailForm({ cocktail }: CocktailFormProps) {
+export function CocktailForm({ cocktail, onSubmitted }: CocktailFormProps) {
   const form = useForm<CocktailFormSchema>({
     defaultValues: !!cocktail
       ? {
@@ -50,7 +52,7 @@ export function CocktailForm({ cocktail }: CocktailFormProps) {
       : {
           label: '',
           ingredients: [{ amount: '' }],
-          tags: [{ label: '' }],
+          tags: [],
         },
   })
 
@@ -70,13 +72,35 @@ export function CocktailForm({ cocktail }: CocktailFormProps) {
     },
   })
 
+  const toast = useToast({
+    position: 'top-right',
+  })
+
   const tags = trpc.getAllTags.useQuery()
 
-  const mutation = trpc.upsertCocktail.useMutation()
+  const utils = trpc.useContext()
+
+  const cocktailMutation = trpc.upsertCocktail.useMutation({
+    onSuccess(cocktail) {
+      const { id } = cocktail
+
+      utils.getAllCocktails.invalidate()
+      utils.getCocktail.invalidate({ id })
+      utils.getTagsForCocktail.invalidate({ id })
+      utils.getCocktailsForTag.invalidate()
+
+      toast({
+        status: 'success',
+        title: 'Successfully submitted cocktail',
+      })
+
+      onSubmitted?.(cocktail)
+    },
+  })
   const tagMutation = trpc.upsertTag.useMutation()
 
   const onSubmit = handleSubmit(async ({ ingredients, ...cocktail }) => {
-    await mutation.mutateAsync({
+    await cocktailMutation.mutateAsync({
       ...cocktail,
       ingredients: ingredients.map(({ ingredient, amount }) => ({ amount, ...ingredient })),
     })
@@ -115,10 +139,7 @@ export function CocktailForm({ cocktail }: CocktailFormProps) {
             <Input
               id="image"
               placeholder="https://www.images/cocktail.jpg"
-              {...register('image', {
-                required: 'This is required',
-                minLength: { value: 4, message: 'Minimum length should be 4' },
-              })}
+              {...register('image')}
             />
             <FormErrorMessage>{errors.image?.message}</FormErrorMessage>
           </FormControl>
@@ -167,6 +188,10 @@ export function CocktailForm({ cocktail }: CocktailFormProps) {
                   placeholder="Tag"
                   onCreateOption={async (label) => {
                     const tag = await tagMutation.mutateAsync({ label })
+                    toast({
+                      status: 'success',
+                      title: 'Successfully created tag',
+                    })
                     field.onChange([...(field.value as Tag[]), tag])
                   }}
                 />

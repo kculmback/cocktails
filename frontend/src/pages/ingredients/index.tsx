@@ -1,11 +1,37 @@
-import { IngredientFormDrawer } from '@/components'
-import { Ingredient as IngredientType } from '@/schema'
+import { IngredientFormDrawer, InStockBadge } from '@/components'
+import { Ingredient as IngredientType, StockFilter } from '@/schema'
 import { trpc } from '@/utils/trpc'
-import { Box, Button, chakra, Container, Heading, Stack, useDisclosure } from '@chakra-ui/react'
+import {
+  Alert,
+  AlertIcon,
+  AlertTitle,
+  Box,
+  Button,
+  Card,
+  CardBody,
+  CardFooter,
+  CardHeader,
+  chakra,
+  Container,
+  Heading,
+  HStack,
+  Skeleton,
+  Stack,
+  useDisclosure,
+  useRadio,
+  useRadioGroup,
+  UseRadioProps,
+} from '@chakra-ui/react'
+import { range, startCase } from 'lodash-es'
 import Head from 'next/head'
+import { Dispatch, ReactNode, SetStateAction, useState } from 'react'
+
+const filterOptions: StockFilter[] = ['all', 'inStock', 'outOfStock']
 
 export default function Ingredients() {
-  const ingredients = trpc.getAllIngredients.useQuery()
+  const [filter, setFilter] = useState(filterOptions[0])
+
+  const ingredients = trpc.getAllIngredients.useQuery({ filter })
 
   return (
     <>
@@ -16,14 +42,32 @@ export default function Ingredients() {
       <chakra.main>
         <Container py="8">
           <Stack spacing="6">
-            <Heading as="h1" size="lg">
-              Ingredients
-            </Heading>
+            <HStack justifyContent="space-between">
+              <Heading as="h1" size="lg">
+                Ingredients
+              </Heading>
 
-            <Stack>
-              {ingredients.data?.map((ingredient) => (
-                <Ingredient key={ingredient.id} ingredient={ingredient} />
-              ))}
+              <IngredientToggle filter={filter} setFilter={setFilter} />
+            </HStack>
+
+            <Stack spacing="4">
+              {ingredients.isLoading ? (
+                range(0, 3).map((i) => <Skeleton key={i} borderRadius="md" h="32" />)
+              ) : ingredients.isError ? (
+                <Alert status="error">
+                  <AlertIcon />
+                  <AlertTitle>Could not retrieve ingredients.</AlertTitle>
+                </Alert>
+              ) : !ingredients.data?.length ? (
+                <Alert>
+                  <AlertIcon />
+                  <AlertTitle>No ingredients found.</AlertTitle>
+                </Alert>
+              ) : (
+                ingredients.data?.map((ingredient) => (
+                  <Ingredient key={ingredient.id} ingredient={ingredient} />
+                ))
+              )}
             </Stack>
           </Stack>
         </Container>
@@ -32,19 +76,103 @@ export default function Ingredients() {
   )
 }
 
+function IngredientToggle({
+  filter,
+  setFilter,
+}: {
+  filter: StockFilter
+  setFilter: Dispatch<SetStateAction<StockFilter>>
+}) {
+  const { getRootProps, getRadioProps } = useRadioGroup({
+    name: 'ingredient',
+    value: filter,
+    onChange: (value: StockFilter) => setFilter(value),
+  })
+
+  const group = getRootProps()
+
+  return (
+    <HStack
+      {...group}
+      spacing="0"
+      sx={{
+        '> label:first-of-type > .ingredient-toggle': {
+          borderLeftRadius: 'md',
+        },
+        '> label:last-of-type > .ingredient-toggle': {
+          borderRightRadius: 'md',
+        },
+      }}
+    >
+      {filterOptions.map((value) => {
+        const radio = getRadioProps({ value })
+        return (
+          <IngredientToggleOption key={value} {...radio}>
+            {startCase(value)}
+          </IngredientToggleOption>
+        )
+      })}
+    </HStack>
+  )
+}
+
+function IngredientToggleOption(props: UseRadioProps & { children: ReactNode }) {
+  const { getInputProps, getCheckboxProps } = useRadio(props)
+
+  const input = getInputProps()
+  const checkbox = getCheckboxProps()
+
+  return (
+    <Box as="label">
+      <input {...input} />
+      <Box
+        {...checkbox}
+        _checked={{
+          bg: 'blue.500',
+          color: 'white',
+        }}
+        _focus={{
+          boxShadow: 'outline',
+        }}
+        bg="white"
+        boxShadow="sm"
+        className="ingredient-toggle"
+        cursor="pointer"
+        fontWeight="medium"
+        px={3}
+        py={2}
+      >
+        {props.children}
+      </Box>
+    </Box>
+  )
+}
+
 function Ingredient({ ingredient }: { ingredient: IngredientType }) {
   const { isOpen, onOpen, onClose } = useDisclosure()
   return (
     <>
-      <Box>
-        <Heading key={ingredient.id} as="h2" size="sm">
-          {ingredient.label}
-        </Heading>
+      <Card size="sm">
+        <CardHeader>
+          <HStack justifyContent="space-between">
+            <Heading key={ingredient.id} as="h2" size="sm">
+              {ingredient.label}
+            </Heading>
 
-        <Button size="sm" onClick={onOpen}>
-          Edit
-        </Button>
-      </Box>
+            <InStockBadge inStock={ingredient.inStock} />
+          </HStack>
+        </CardHeader>
+
+        <CardBody py="0">{ingredient.description ?? 'No description'}</CardBody>
+
+        <CardFooter>
+          <HStack justifyContent="flex-end" w="full">
+            <Button size="sm" onClick={onOpen}>
+              Edit
+            </Button>
+          </HStack>
+        </CardFooter>
+      </Card>
 
       {isOpen && <IngredientFormDrawer ingredient={ingredient} onClose={onClose} />}
     </>

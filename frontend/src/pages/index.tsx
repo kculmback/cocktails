@@ -2,6 +2,9 @@ import { CocktailsList } from '@/components'
 import { Tag } from '@/schema'
 import { trpc } from '@/utils/trpc'
 import {
+  Alert,
+  AlertIcon,
+  AlertTitle,
   Card,
   CardBody,
   Container,
@@ -10,9 +13,11 @@ import {
   Heading,
   HStack,
   Input,
+  Skeleton,
   Stack,
 } from '@chakra-ui/react'
 import { Select } from 'chakra-react-select'
+import { range } from 'lodash-es'
 import Head from 'next/head'
 import { useEffect, useMemo, useState } from 'react'
 import { useMiniSearch } from 'react-minisearch'
@@ -21,7 +26,7 @@ export default function Home() {
   const tags = trpc.getAllTags.useQuery()
   const [tag, setTag] = useState<Tag | null>(null)
 
-  const cocktails = trpc.getAllCocktails.useQuery({ filter: 'available' })
+  const cocktails = trpc.getAllCocktails.useQuery({ filter: 'inStock' })
   const tagCocktails = trpc.getCocktailsForTag.useQuery(
     { id: tag?.id ?? '' },
     { enabled: !!tag?.id }
@@ -98,7 +103,21 @@ export default function Home() {
               </CardBody>
             </Card>
 
-            <CocktailsList cocktails={(!!query ? searchResults : cocktailsData) ?? []} />
+            {cocktails.isLoading ? (
+              range(0, 3).map((i) => <Skeleton key={i} borderRadius="md" h="44" />)
+            ) : cocktails.isError ? (
+              <Alert status="error">
+                <AlertIcon />
+                <AlertTitle>Could not retrieve cocktails.</AlertTitle>
+              </Alert>
+            ) : !(!!query ? searchResults : cocktailsData)?.length ? (
+              <Alert>
+                <AlertIcon />
+                <AlertTitle>No cocktails found.</AlertTitle>
+              </Alert>
+            ) : (
+              <CocktailsList cocktails={(!!query ? searchResults : cocktailsData) ?? []} />
+            )}
           </Stack>
         </Container>
       </main>

@@ -11,6 +11,7 @@ import {
   DrawerFooter,
   DrawerHeader,
   DrawerOverlay,
+  useToast,
 } from '@chakra-ui/react'
 import { useForm } from 'react-hook-form'
 import { IngredientFormFields, INGREDIENT_FORM_ID } from './IngredientFormFields'
@@ -27,11 +28,27 @@ export function IngredientFormDrawer({ ingredient, onClose }: CreateIngredientDr
     formState: { isSubmitting },
   } = form
 
-  const mutation = trpc.upsertIngredient.useMutation()
+  const toast = useToast({
+    position: 'top-right',
+  })
+
+  const utils = trpc.useContext()
+  const mutation = trpc.upsertIngredient.useMutation({
+    onSuccess(ingredient) {
+      utils.getAllIngredients.invalidate()
+      utils.getIngredient.invalidate({ id: ingredient.id })
+
+      toast({
+        status: 'success',
+        title: 'Successfully submitted ingredient',
+      })
+
+      onClose?.(ingredient)
+    },
+  })
 
   const onSubmit = handleSubmit(async (data) => {
-    const ingredient = await mutation.mutateAsync(data)
-    onClose?.(ingredient)
+    await mutation.mutateAsync(data)
   })
 
   return (

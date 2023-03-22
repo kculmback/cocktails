@@ -1,4 +1,4 @@
-import { Cocktail, CocktailIngredient, CocktailTag, Ingredient, Tag } from '@/schema'
+import { Cocktail, CocktailIngredient, CocktailTag, Ingredient, StockFilter, Tag } from '@/schema'
 import {
   GetItemCommand,
   GetItemCommandInput,
@@ -17,7 +17,7 @@ import {
   TAG_SK,
 } from './constants'
 
-export async function getAllCocktails(filter?: 'all' | 'available' | 'not-available') {
+export async function getAllCocktails(filter?: StockFilter) {
   const isAllFilter = !filter || filter === 'all'
   const input: QueryCommandInput = {
     TableName: tableName,
@@ -32,7 +32,7 @@ export async function getAllCocktails(filter?: 'all' | 'available' | 'not-availa
     ExpressionAttributeValues: marshall({
       ':cocktailPartitionKey': COCKTAIL_SK,
       ':sk': COCKTAIL_SK,
-      ...(isAllFilter ? {} : { ':inStock': filter === 'available' }),
+      ...(isAllFilter ? {} : { ':inStock': filter === 'inStock' }),
     }),
   }
 
@@ -51,51 +51,23 @@ export async function getAllCocktails(filter?: 'all' | 'available' | 'not-availa
   return parsedResultItems
 }
 
-export async function getInStockCocktails() {
-  const input: QueryCommandInput = {
-    TableName: tableName,
-    IndexName: 'GSI1',
-    KeyConditionExpression: '#pk = :cocktailPartitionKey and begins_with(#sk, :sk)',
-    FilterExpression: '#inStock = :inStock',
-    ExpressionAttributeNames: {
-      '#pk': 'GSI-PK-1',
-      '#sk': 'GSI-SK-1',
-      '#inStock': 'inStock',
-    },
-    ExpressionAttributeValues: marshall({
-      ':cocktailPartitionKey': COCKTAIL_SK,
-      ':sk': COCKTAIL_SK,
-      ':inStock': true,
-    }),
-  }
+export async function getAllIngredients(filter?: StockFilter) {
+  const isAllFilter = !filter || filter === 'all'
 
-  const result = await dynamoDb.send(new QueryCommand(input))
-
-  const statusCode = result?.$metadata?.httpStatusCode ?? 0
-
-  if (statusCode / 100 > 2 || !result.Items) {
-    throw new Error('Invalid')
-  }
-
-  const parsedResultItems = result.Items?.map((item) => unmarshall(item) as Cocktail).sort((a, b) =>
-    a.label.localeCompare(b.label)
-  )
-
-  return parsedResultItems
-}
-
-export async function getAllIngredients() {
   const input: QueryCommandInput = {
     TableName: tableName,
     IndexName: 'GSI1',
     KeyConditionExpression: '#pk = :ingredientPartitionKey and begins_with(#sk, :sk)',
+    FilterExpression: isAllFilter ? undefined : '#inStock = :inStock',
     ExpressionAttributeNames: {
       '#pk': 'GSI-PK-1',
       '#sk': 'GSI-SK-1',
+      ...(isAllFilter ? {} : { '#inStock': 'inStock' }),
     },
     ExpressionAttributeValues: marshall({
       ':ingredientPartitionKey': INGREDIENT_SK,
       ':sk': INGREDIENT_SK,
+      ...(isAllFilter ? {} : { ':inStock': filter === 'inStock' }),
     }),
   }
 

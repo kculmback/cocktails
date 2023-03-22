@@ -1,8 +1,11 @@
 import { CocktailForm } from '@/components'
-import { chakra, Container, Heading, Stack } from '@chakra-ui/react'
+import { Card, CardBody, CardHeader, chakra, Container, Heading, Stack } from '@chakra-ui/react'
 import Head from 'next/head'
+import { useRouter } from 'next/router'
 
 export default function CreateCocktail() {
+  const router = useRouter()
+
   return (
     <>
       <Head>
@@ -11,13 +14,22 @@ export default function CreateCocktail() {
 
       <chakra.main>
         <Container py="8">
-          <Stack>
-            <Heading as="h1" size="lg">
-              Create
-            </Heading>
-
-            <CocktailForm />
-          </Stack>
+          <Card>
+            <CardHeader>
+              <Heading as="h1" size="lg">
+                Create
+              </Heading>
+            </CardHeader>
+            <CardBody>
+              <Stack>
+                <CocktailForm
+                  onSubmitted={({ id }) => {
+                    router.push(`/cocktails/${id}`)
+                  }}
+                />
+              </Stack>
+            </CardBody>
+          </Card>
         </Container>
       </chakra.main>
     </>

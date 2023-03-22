@@ -1,6 +1,7 @@
 import { CocktailsList } from '@/components'
 import { trpc } from '@/utils/trpc'
-import { Container, Heading, Stack } from '@chakra-ui/react'
+import { Alert, AlertIcon, AlertTitle, Container, Heading, Skeleton, Stack } from '@chakra-ui/react'
+import { range } from 'lodash-es'
 import Head from 'next/head'
 
 export default function AllCocktails() {
@@ -19,7 +20,22 @@ export default function AllCocktails() {
               <Heading as="h1" size="lg">
                 All Cocktails
               </Heading>
-              <CocktailsList cocktails={cocktails.data ?? []} includeActions />
+
+              {cocktails.isLoading ? (
+                range(0, 3).map((i) => <Skeleton key={i} borderRadius="md" h="44" />)
+              ) : cocktails.isError ? (
+                <Alert status="error">
+                  <AlertIcon />
+                  <AlertTitle>Could not retrieve cocktails.</AlertTitle>
+                </Alert>
+              ) : !cocktails.data?.length ? (
+                <Alert>
+                  <AlertIcon />
+                  <AlertTitle>No cocktails found.</AlertTitle>
+                </Alert>
+              ) : (
+                <CocktailsList cocktails={cocktails.data ?? []} includeActions />
+              )}
             </Stack>
           </Stack>
         </Container>
