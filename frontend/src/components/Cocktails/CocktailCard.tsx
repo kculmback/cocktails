@@ -25,7 +25,7 @@ import type { SetOptional } from 'type-fest'
 
 export type CocktailCardProp = {
   cocktail: SetOptional<Cocktail, 'inStock'>
-  cocktailImageProps: ImageProps
+  cocktailImageProps?: ImageProps
   includeActions?: boolean
 } & CardProps
 
