@@ -1,15 +1,7 @@
 import { CocktailTag } from '@/schema'
-import {
-  QueryCommand,
-  QueryCommandInput
-} from '@aws-sdk/client-dynamodb'
+import { QueryCommand, QueryCommandInput } from '@aws-sdk/client-dynamodb'
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb'
-import {
-  COCKTAIL_PK,
-  TAG_SK,
-  dynamoDb,
-  tableName
-} from './constants'
+import { COCKTAIL_PK, TAG_SK, dynamoDb, tableName } from './constants'
 
 export async function getAllTagsForCocktail(cocktailId: string) {
   const input: QueryCommandInput = {

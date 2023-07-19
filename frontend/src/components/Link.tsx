@@ -10,17 +10,16 @@ type LinkComponent = FC<RefAttributes<HTMLAnchorElement> & LinkProps>
 
 export type LinkProps = Merge<HTMLChakraProps<'a'>, Omit<NextLinkProps, LegacyProps>>
 
-export const Link: LinkComponent = forwardRef<LinkProps, typeof NextLink>(function Link(
-  props,
-  ref
-) {
-  const { href, children, ...rest } = props
-  return (
-    <chakra.a ref={ref} href={href as any} {...rest} as={NextLink}>
-      {children}
-    </chakra.a>
-  )
-})
+export const Link: LinkComponent = forwardRef<LinkProps, typeof NextLink>(
+  function Link(props, ref) {
+    const { href, children, ...rest } = props
+    return (
+      <chakra.a ref={ref} href={href as any} {...rest} as={NextLink}>
+        {children}
+      </chakra.a>
+    )
+  }
+)
 
 export const ButtonLink = forwardRef<ButtonProps & LinkProps, 'a'>(function ButtonLink(props, ref) {
   return <Button ref={ref} {...props} as={Link} />

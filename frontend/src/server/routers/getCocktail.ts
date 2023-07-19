@@ -1,4 +1,7 @@
-import { getAllIngredientsForCocktailFromDb, getCocktailFromDb as getDbCocktail } from '@/utils/dynamoDb'
+import {
+  getAllIngredientsForCocktailFromDb,
+  getCocktailFromDb as getDbCocktail,
+} from '@/utils/dynamoDb'
 import { z } from 'zod'
 import { procedure } from '../trpc'
 
