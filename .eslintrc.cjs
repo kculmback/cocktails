@@ -4,12 +4,7 @@ module.exports = {
     es2021: true,
   },
   ignorePatterns: ['sst-env.d.ts', 'next-env.d.ts'],
-  extends: [
-    'next/core-web-vitals',
-    'plugin:react/recommended',
-    'plugin:react-hooks/recommended',
-    'plugin:prettier/recommended',
-  ],
+  extends: ['next/core-web-vitals', 'plugin:prettier/recommended'],
   parser: '@typescript-eslint/parser',
   parserOptions: {
     ecmaFeatures: {

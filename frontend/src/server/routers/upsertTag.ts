@@ -1,5 +1,5 @@
 import { TagSchema } from '@/schema'
-import { putTag } from '@/utils/dynamoDb'
+import { putTagToDb } from '@/utils/dynamoDb'
 import { v4 as uuid } from 'uuid'
 import { z } from 'zod'
 import { procedure } from '../trpc'
@@ -16,7 +16,7 @@ export const upsertTag = procedure.input(UpsertTagSchema).mutation(async ({ inpu
     id: input.id ?? uuid(),
   }
 
-  await putTag(tagWithId)
+  await putTagToDb(tagWithId)
 
   return tagWithId
 })

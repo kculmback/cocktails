@@ -1,16 +1,20 @@
-import { CocktailsList } from '@/components'
+import { CocktailsList, SearchCocktails, useSearchCocktails } from '@/components'
 import { trpc } from '@/utils/trpc'
 import { Alert, AlertIcon, AlertTitle, Container, Heading, Skeleton, Stack } from '@chakra-ui/react'
 import { range } from 'lodash-es'
 import Head from 'next/head'
 
 export default function AllCocktails() {
-  const cocktails = trpc.getAllCocktails.useQuery({ filter: 'all' })
+  const cocktailsQuery = trpc.getAllCocktails.useQuery({ filter: 'all' })
+
+  const { cocktails, query, setQuery, searchResults, tag, setTag, tags } = useSearchCocktails({
+    cocktailsQuery,
+  })
 
   return (
     <>
       <Head>
-        <title>Cocktails</title>
+        <title>Cocktails - All</title>
       </Head>
 
       <main>
@@ -21,20 +25,31 @@ export default function AllCocktails() {
                 All Cocktails
               </Heading>
 
-              {cocktails.isLoading ? (
+              <SearchCocktails
+                query={query}
+                setQuery={setQuery}
+                setTag={setTag}
+                tag={tag}
+                tags={tags}
+              />
+
+              {cocktailsQuery.isLoading ? (
                 range(0, 3).map((i) => <Skeleton key={i} borderRadius="md" h="44" />)
-              ) : cocktails.isError ? (
+              ) : cocktailsQuery.isError ? (
                 <Alert status="error">
                   <AlertIcon />
                   <AlertTitle>Could not retrieve cocktails.</AlertTitle>
                 </Alert>
-              ) : !cocktails.data?.length ? (
+              ) : !(!!query ? searchResults : cocktails)?.length ? (
                 <Alert>
                   <AlertIcon />
                   <AlertTitle>No cocktails found.</AlertTitle>
                 </Alert>
               ) : (
-                <CocktailsList cocktails={cocktails.data ?? []} includeActions />
+                <CocktailsList
+                  cocktails={(!!query ? searchResults : cocktails) ?? []}
+                  includeActions
+                />
               )}
             </Stack>
           </Stack>

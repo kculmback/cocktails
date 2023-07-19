@@ -1,4 +1,4 @@
-import { getAllIngredientsForCocktail, getCocktail as getDbCocktail } from '@/utils/dynamoDb'
+import { getAllIngredientsForCocktailFromDb, getCocktailFromDb as getDbCocktail } from '@/utils/dynamoDb'
 import { z } from 'zod'
 import { procedure } from '../trpc'
 
@@ -12,7 +12,7 @@ export const getCocktail = procedure
     const cocktail = await getDbCocktail(input.id)
     if (!cocktail) return
 
-    const ingredients = await getAllIngredientsForCocktail(input.id)
+    const ingredients = await getAllIngredientsForCocktailFromDb(input.id)
 
     return { ...cocktail, ingredients }
   })

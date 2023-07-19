@@ -1,5 +1,5 @@
 import { StockFilterSchema } from '@/schema'
-import { getAllIngredients as getAllDbIngredients } from '@/utils/dynamoDb'
+import { getAllIngredientsFromDb as getAllDbIngredients } from '@/utils/dynamoDb'
 import { z } from 'zod'
 import { procedure } from '../trpc'
 

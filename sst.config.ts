@@ -1,5 +1,5 @@
 import { SSTConfig } from 'sst'
-import { MainStack } from './stacks/MainStack'
+import { MainStack } from './stacks/MainStack.js'
 
 export default {
   config(__input) {

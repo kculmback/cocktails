@@ -8,11 +8,11 @@ import {
   TagSchema,
 } from '@/schema'
 import {
-  getAllIngredientsForCocktail,
+  getAllIngredientsForCocktailFromDb,
   getAllTagsForCocktail,
-  putCocktail,
-  putCocktailIngredients,
-  putCocktailTags,
+  putCocktailToDb,
+  putCocktailIngredientsToDb,
+  putCocktailTagsToDb,
 } from '@/utils/dynamoDb'
 import { differenceBy } from 'lodash-es'
 import { v4 as uuid } from 'uuid'
@@ -39,7 +39,7 @@ export const upsertCocktail = procedure.input(UpsertCocktailSchema).mutation(asy
     inStock: ingredients.every(({ inStock }) => inStock),
   }
 
-  const dbCocktail = await putCocktail(cocktailWithId)
+  const dbCocktail = await putCocktailToDb(cocktailWithId)
 
   // ingredients
   const ingredientsWithId: (Ingredient & Pick<CocktailIngredient, 'amount'>)[] = ingredients.map(
@@ -48,12 +48,12 @@ export const upsertCocktail = procedure.input(UpsertCocktailSchema).mutation(asy
       id: ingredient.id ?? uuid(),
     })
   )
-  const currentIngredients = await getAllIngredientsForCocktail(dbCocktail.id)
+  const currentIngredients = await getAllIngredientsForCocktailFromDb(dbCocktail.id)
   const removedIngredients = differenceBy(currentIngredients, ingredientsWithId, (value) =>
     'id' in value ? value.id : value.ingredient.id
   ).map((ingredient) => ingredient.ingredient.id)
 
-  await putCocktailIngredients(dbCocktail, ingredientsWithId, removedIngredients)
+  await putCocktailIngredientsToDb(dbCocktail, ingredientsWithId, removedIngredients)
 
   // tags
   const tagsWithId: Tag[] = tags.map((tag) => ({
@@ -65,7 +65,7 @@ export const upsertCocktail = procedure.input(UpsertCocktailSchema).mutation(asy
     'id' in item ? item.id : item.tag.id
   ).map(({ tag }) => tag.id)
 
-  await putCocktailTags(dbCocktail.id, tagsWithId, removedTags)
+  await putCocktailTagsToDb(dbCocktail.id, tagsWithId, removedTags)
 
   return {
     ...cocktailWithId,

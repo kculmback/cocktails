@@ -1,6 +1,6 @@
-import { getAllCocktailsForTag } from '@/utils/dynamoDb'
 import { z } from 'zod'
 import { procedure } from '../trpc'
+import { getAllCocktailsForTagFromDb } from '@/utils/dynamoDb'
 
 export const getCocktailsForTag = procedure
   .input(
@@ -9,5 +9,5 @@ export const getCocktailsForTag = procedure
     })
   )
   .query(async ({ input }) => {
-    return await getAllCocktailsForTag(input.id)
+    return await getAllCocktailsForTagFromDb(input.id)
   })

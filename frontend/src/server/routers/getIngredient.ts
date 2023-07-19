@@ -1,4 +1,4 @@
-import { getAllCocktailsForIngredient, getIngredient as getDbIngredient } from '@/utils/dynamoDb'
+import { getAllCocktailsForIngredientFromDb, getIngredientFromDb as getDbIngredient } from '@/utils/dynamoDb'
 import { z } from 'zod'
 import { procedure } from '../trpc'
 
@@ -11,7 +11,7 @@ export const getIngredient = procedure
   )
   .query(async ({ input }) => {
     const ingredient = await getDbIngredient(input.id)
-    const cocktails = await getAllCocktailsForIngredient(input.id)
+    const cocktails = await getAllCocktailsForIngredientFromDb(input.id)
 
     return { ...ingredient, cocktails }
   })

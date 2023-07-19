@@ -1,63 +1,20 @@
-import { CocktailsList } from '@/components'
-import { Tag } from '@/schema'
+import { CocktailsList, SearchCocktails, useSearchCocktails } from '@/components'
 import { trpc } from '@/utils/trpc'
-import {
-  Alert,
-  AlertIcon,
-  AlertTitle,
-  Card,
-  CardBody,
-  Container,
-  FormControl,
-  FormLabel,
-  Heading,
-  HStack,
-  Input,
-  Skeleton,
-  Stack,
-} from '@chakra-ui/react'
-import { Select } from 'chakra-react-select'
+import { Alert, AlertIcon, AlertTitle, Container, Heading, Skeleton, Stack } from '@chakra-ui/react'
 import { range } from 'lodash-es'
+import { useSession } from 'next-auth/react'
 import Head from 'next/head'
-import { useEffect, useMemo, useState } from 'react'
-import { useMiniSearch } from 'react-minisearch'
 
 export default function Home() {
-  const tags = trpc.getAllTags.useQuery()
-  const [tag, setTag] = useState<Tag | null>(null)
+  const cocktailsQuery = trpc.getAllCocktails.useQuery({ filter: 'inStock' })
 
-  const cocktails = trpc.getAllCocktails.useQuery({ filter: 'inStock' })
-  const tagCocktails = trpc.getCocktailsForTag.useQuery(
-    { id: tag?.id ?? '' },
-    { enabled: !!tag?.id }
-  )
-
-  const cocktailsData = useMemo(() => {
-    return tagCocktails.data?.map(({ cocktail }) => cocktail) ?? cocktails.data ?? []
-  }, [cocktails, tagCocktails])
-
-  const { removeAll, addAll, search, searchResults } = useMiniSearch(cocktailsData, {
-    fields: ['label', 'description'],
-    searchOptions: {
-      fuzzy: true,
-      prefix: true,
-    },
-    idField: 'id',
+  const { cocktails, query, setQuery, searchResults, tag, setTag, tags } = useSearchCocktails({
+    cocktailsQuery,
   })
 
-  useEffect(() => {
-    removeAll()
-    addAll(cocktailsData)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cocktailsData])
+  const { status } = useSession()
 
-  const [query, setQuery] = useState('')
-  useEffect(() => {
-    if (!!query) {
-      search(query)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query])
+  const isLoggedIn = status === 'authenticated'
 
   return (
     <>
@@ -72,51 +29,31 @@ export default function Home() {
               Available Cocktails
             </Heading>
 
-            <Card>
-              <CardBody>
-                <HStack>
-                  <FormControl maxW="72">
-                    <FormLabel htmlFor="tag">Select Tag</FormLabel>
-                    <Select
-                      getOptionLabel={(option) => option.label}
-                      getOptionValue={(option) => option.id ?? option.label}
-                      isClearable
-                      isLoading={tags.isLoading}
-                      name="tag"
-                      options={tags.data ?? []}
-                      placeholder="Tag..."
-                      value={tag}
-                      onChange={(value) => setTag(value)}
-                    />
-                  </FormControl>
+            <SearchCocktails
+              query={query}
+              setQuery={setQuery}
+              setTag={setTag}
+              tag={tag}
+              tags={tags}
+            />
 
-                  <FormControl flexGrow={1}>
-                    <FormLabel htmlFor="query">Search Cocktails</FormLabel>
-                    <Input
-                      name="query"
-                      placeholder="Whiskey..."
-                      value={query}
-                      onChange={(e) => setQuery(e.target.value)}
-                    />
-                  </FormControl>
-                </HStack>
-              </CardBody>
-            </Card>
-
-            {cocktails.isLoading ? (
+            {cocktailsQuery.isLoading ? (
               range(0, 3).map((i) => <Skeleton key={i} borderRadius="md" h="44" />)
-            ) : cocktails.isError ? (
+            ) : cocktailsQuery.isError ? (
               <Alert status="error">
                 <AlertIcon />
                 <AlertTitle>Could not retrieve cocktails.</AlertTitle>
               </Alert>
-            ) : !(!!query ? searchResults : cocktailsData)?.length ? (
+            ) : !(!!query ? searchResults : cocktails)?.length ? (
               <Alert>
                 <AlertIcon />
                 <AlertTitle>No cocktails found.</AlertTitle>
               </Alert>
             ) : (
-              <CocktailsList cocktails={(!!query ? searchResults : cocktailsData) ?? []} />
+              <CocktailsList
+                cocktails={(!!query ? searchResults : cocktails) ?? []}
+                includeActions={isLoggedIn}
+              />
             )}
           </Stack>
         </Container>

@@ -10,6 +10,7 @@ import {
   Heading,
   HStack,
   IconButton,
+  ImageProps,
   Skeleton,
   Stack,
   Tag,
@@ -24,11 +25,12 @@ import type { SetOptional } from 'type-fest'
 
 export type CocktailCardProp = {
   cocktail: SetOptional<Cocktail, 'inStock'>
+  cocktailImageProps: ImageProps
   includeActions?: boolean
 } & CardProps
 
 export const CocktailCard = forwardRef<CocktailCardProp, 'div'>(function CocktailCard(
-  { cocktail, includeActions, ...props },
+  { cocktail, cocktailImageProps = {}, includeActions, ...props },
   ref
 ) {
   const tags = trpc.getTagsForCocktail.useQuery({ id: cocktail.id })
@@ -39,6 +41,7 @@ export const CocktailCard = forwardRef<CocktailCardProp, 'div'>(function Cocktai
         flexShrink={0}
         maxW={{ base: '100%', md: '300px' }}
         objectFit="cover"
+        {...cocktailImageProps}
         src={cocktail.image ?? undefined}
       />
 

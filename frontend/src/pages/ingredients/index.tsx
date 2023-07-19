@@ -1,4 +1,5 @@
 import { IngredientFormDrawer, InStockBadge } from '@/components'
+import { IngredientCocktailsDrawer } from '@/components/Ingredients/IngredientCocktailsDrawer'
 import { Ingredient as IngredientType, StockFilter } from '@/schema'
 import { trpc } from '@/utils/trpc'
 import {
@@ -7,6 +8,7 @@ import {
   AlertTitle,
   Box,
   Button,
+  ButtonGroup,
   Card,
   CardBody,
   CardFooter,
@@ -150,6 +152,14 @@ function IngredientToggleOption(props: UseRadioProps & { children: ReactNode }) 
 
 function Ingredient({ ingredient }: { ingredient: IngredientType }) {
   const { isOpen, onOpen, onClose } = useDisclosure()
+  const {
+    isOpen: isOpenCocktailPanel,
+    onOpen: onOpenCocktailPanel,
+    onClose: onCloseCocktailPanel,
+  } = useDisclosure()
+
+  const removeIngredient = trpc.removeIngredient.useMutation()
+
   return (
     <>
       <Card size="sm">
@@ -166,15 +176,24 @@ function Ingredient({ ingredient }: { ingredient: IngredientType }) {
         <CardBody py="0">{ingredient.description ?? 'No description'}</CardBody>
 
         <CardFooter>
-          <HStack justifyContent="flex-end" w="full">
-            <Button size="sm" onClick={onOpen}>
-              Edit
+          <ButtonGroup justifyContent="flex-end" size="sm" spacing="1" w="full">
+            <Button onClick={onOpenCocktailPanel}>View Cocktails</Button>
+            <Button onClick={onOpen}>Edit</Button>
+            <Button
+              colorScheme="red"
+              isLoading={removeIngredient.isLoading}
+              onClick={() => removeIngredient.mutate({ id: ingredient.id })}
+            >
+              Remove
             </Button>
-          </HStack>
+          </ButtonGroup>
         </CardFooter>
       </Card>
 
       {isOpen && <IngredientFormDrawer ingredient={ingredient} onClose={onClose} />}
+      {isOpenCocktailPanel && (
+        <IngredientCocktailsDrawer ingredient={ingredient} onClose={onCloseCocktailPanel} />
+      )}
     </>
   )
 }

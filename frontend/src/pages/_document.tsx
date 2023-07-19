@@ -4,8 +4,6 @@ export default function Document() {
   return (
     <Html lang="en">
       <Head>
-        <meta content="Cocktails" name="description" />
-        <meta content="width=device-width, initial-scale=1" name="viewport" />
         <link href="/favicon.ico" rel="icon" />
       </Head>
 

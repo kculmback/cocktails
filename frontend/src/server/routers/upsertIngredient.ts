@@ -1,5 +1,5 @@
 import { IngredientSchema } from '@/schema'
-import { putIngredient } from '@/utils/dynamoDb'
+import { putIngredientToDb } from '@/utils/dynamoDb'
 import { v4 as uuid } from 'uuid'
 import { z } from 'zod'
 import { procedure } from '../trpc'
@@ -18,7 +18,7 @@ export const upsertIngredient = procedure
       id: input.id ?? uuid(),
     }
 
-    await putIngredient(ingredientWithId)
+    await putIngredientToDb(ingredientWithId)
 
     return ingredientWithId
   })
