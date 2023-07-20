@@ -7,6 +7,8 @@ const emailWhitelist = process.env.EMAIL_WHITELIST ?? ''
 const googleId = process.env.GOOGLE_ID ?? ''
 const googleSecret = process.env.GOOGLE_SECRET ?? ''
 
+const nextAuthSecret = process.env.NEXTAUTH_SECRET ?? ''
+
 export function MainStack({ app, stack }: StackContext) {
   // Create the table
   const table = new Table(stack, 'Cocktails', {
@@ -46,6 +48,7 @@ export function MainStack({ app, stack }: StackContext) {
       GOOGLE_ID: googleId,
       GOOGLE_SECRET: googleSecret,
       NEXTAUTH_URL: nextAuthUrl,
+      NEXTAUTH_SECRET: nextAuthSecret,
       EMAIL_WHITELIST: emailWhitelist,
     },
   })
