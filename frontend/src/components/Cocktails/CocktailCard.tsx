@@ -88,15 +88,17 @@ export const CocktailCard = forwardRef<CocktailCardProp, 'div'>(function Cocktai
           </Stack>
         </CardBody>
 
-        {!!includeActions && (
-          <CardFooter pt="0">
-            <ButtonGroup justifyContent="flex-end" spacing="1" w="full">
-              <ButtonLink href={`/cocktails/${cocktail.id}`}>View</ButtonLink>
-              <ButtonLink href={`/cocktails/${cocktail.id}/edit`}>Edit</ButtonLink>
-              <RemoveCocktail cocktailId={cocktail.id} />
-            </ButtonGroup>
-          </CardFooter>
-        )}
+        <CardFooter pt="0">
+          <ButtonGroup justifyContent="flex-end" spacing="1" w="full">
+            <ButtonLink href={`/cocktails/${cocktail.id}`}>View</ButtonLink>
+            {!!includeActions && (
+              <>
+                <ButtonLink href={`/cocktails/${cocktail.id}/edit`}>Edit</ButtonLink>
+                <RemoveCocktail cocktailId={cocktail.id} />
+              </>
+            )}
+          </ButtonGroup>
+        </CardFooter>
       </Stack>
     </Card>
   )

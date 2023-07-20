@@ -2,8 +2,8 @@ export { default } from 'next-auth/middleware'
 
 export const config = {
   matcher: [
-    '/cocktails',
-    '/cocktails/(.*)',
+    // '/cocktails',
+    '/cocktails/(.*)/edit',
     '/ingredients',
     '/ingredients/(.*)',
     '/api/trpc/upsert(.*)',

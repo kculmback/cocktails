@@ -1,30 +1,61 @@
-import { ButtonLink } from '@/components'
-import { Button, HStack } from '@chakra-ui/react'
+import { ButtonLink, Link } from '@/components'
+import {
+  Box,
+  Button,
+  HStack,
+  Icon,
+  IconButton,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
+} from '@chakra-ui/react'
 import { signIn, signOut, useSession } from 'next-auth/react'
+import { MdMenu } from 'react-icons/md'
 
 export function Navigation() {
   const { data: session } = useSession()
 
   return (
     <HStack bg="white" justifyContent="space-between" mb="6" px="4" py="2" shadow="md">
-      <HStack>
+      <Box>
         {!!session && (
           <>
-            <ButtonLink href="/" size="sm">
-              Home
-            </ButtonLink>
-            <ButtonLink href="/cocktails" size="sm">
-              All Cocktails
-            </ButtonLink>
-            <ButtonLink href="/cocktails/create" size="sm">
-              Create Cocktail
-            </ButtonLink>
-            <ButtonLink href="/ingredients" size="sm">
-              Ingredients
-            </ButtonLink>
+            <HStack display={{ base: 'none', lg: 'flex' }}>
+              <ButtonLink href="/" size="sm">
+                Home
+              </ButtonLink>
+              <ButtonLink href="/cocktails" size="sm">
+                All Cocktails
+              </ButtonLink>
+              <ButtonLink href="/cocktails/create" size="sm">
+                Create Cocktail
+              </ButtonLink>
+              <ButtonLink href="/ingredients" size="sm">
+                Ingredients
+              </ButtonLink>
+            </HStack>
+
+            <Menu>
+              <MenuButton as={IconButton} icon={<Icon as={MdMenu} />} />
+              <MenuList>
+                <MenuItem as={Link} href="/">
+                  Home
+                </MenuItem>
+                <MenuItem as={Link} href="/cocktails">
+                  All Cocktails
+                </MenuItem>
+                <MenuItem as={Link} href="/cocktails/create">
+                  Create Cocktail
+                </MenuItem>
+                <MenuItem as={Link} href="/ingredients">
+                  Ingredients
+                </MenuItem>
+              </MenuList>
+            </Menu>
           </>
         )}
-      </HStack>
+      </Box>
 
       {!!session ? (
         <Button size="sm" onClick={() => signOut()}>

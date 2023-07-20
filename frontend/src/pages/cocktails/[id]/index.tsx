@@ -24,6 +24,7 @@ import {
   WrapItem,
 } from '@chakra-ui/react'
 import { range } from 'lodash-es'
+import { useSession } from 'next-auth/react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { MdOpenInNew } from 'react-icons/md'
@@ -34,6 +35,9 @@ export default function CocktailDetail() {
 
   const cocktail = trpc.getCocktail.useQuery({ id }, { enabled: !!id })
   const tags = trpc.getTagsForCocktail.useQuery({ id }, { enabled: !!id })
+
+  const { status } = useSession()
+  const isLoggedIn = status === 'authenticated'
 
   return (
     <>
@@ -69,9 +73,12 @@ export default function CocktailDetail() {
                     </HStack>
 
                     <ButtonGroup isAttached>
-                      <ButtonLink colorScheme="blue" href={`/cocktails/${id}/edit`}>
-                        Edit
-                      </ButtonLink>
+                      {isLoggedIn && (
+                        <ButtonLink colorScheme="blue" href={`/cocktails/${id}/edit`}>
+                          Edit
+                        </ButtonLink>
+                      )}
+
                       {!!cocktail.data?.url && (
                         <IconButton
                           aria-label="Open link in new window"
