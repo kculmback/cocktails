@@ -1,12 +1,18 @@
-import { IngredientFormDrawer, InStockBadge } from '@/components'
+import {
+  ingredientFilterOptions,
+  IngredientFormDrawer,
+  IngredientSortBy,
+  IngredientToggle,
+  InStockBadge,
+  useIngredientSortBy,
+} from '@/components'
 import { IngredientCocktailsDrawer } from '@/components/Ingredients/IngredientCocktailsDrawer'
-import { Ingredient as IngredientType, StockFilter } from '@/schema'
+import { Ingredient as IngredientType } from '@/schema'
 import { trpc } from '@/utils/trpc'
 import {
   Alert,
   AlertIcon,
   AlertTitle,
-  Box,
   Button,
   ButtonGroup,
   Card,
@@ -17,23 +23,38 @@ import {
   Container,
   Heading,
   HStack,
+  Icon,
+  IconButton,
   Skeleton,
   Stack,
   useDisclosure,
-  useRadio,
-  useRadioGroup,
-  UseRadioProps,
+  useToast,
 } from '@chakra-ui/react'
-import { range, startCase } from 'lodash-es'
+import { range } from 'lodash-es'
 import Head from 'next/head'
-import { Dispatch, ReactNode, SetStateAction, useState } from 'react'
-
-const filterOptions: StockFilter[] = ['all', 'inStock', 'outOfStock']
+import { useMemo, useState } from 'react'
+import { MdDelete } from 'react-icons/md'
 
 export default function Ingredients() {
-  const [filter, setFilter] = useState(filterOptions[0])
+  const [filter, setFilter] = useState(ingredientFilterOptions[0])
 
-  const ingredients = trpc.getAllIngredients.useQuery({ filter })
+  const ingredientsQuery = trpc.getAllIngredients.useQuery({ filter })
+
+  const ingredientCocktailsQueries = trpc.useQueries((t) =>
+    (ingredientsQuery.data ?? []).map(({ id }) => t.getCocktailsForIngredient({ id }))
+  )
+
+  const ingredients = useMemo(
+    () =>
+      (ingredientsQuery.data ?? []).map((ingredient, index) => ({
+        ...ingredient,
+        cocktails: ingredientCocktailsQueries[index]?.data?.map(({ cocktail }) => cocktail) ?? [],
+      })),
+    [ingredientCocktailsQueries, ingredientsQuery.data]
+  )
+
+  const { isAscending, setIsAscending, sortBy, setSortBy, sortedIngredients } =
+    useIngredientSortBy(ingredients)
 
   return (
     <>
@@ -44,29 +65,37 @@ export default function Ingredients() {
       <chakra.main>
         <Container py="8">
           <Stack spacing="6">
-            <HStack justifyContent="space-between">
+            <Stack>
               <Heading as="h1" size="lg">
                 Ingredients
               </Heading>
 
-              <IngredientToggle filter={filter} setFilter={setFilter} />
-            </HStack>
+              <HStack alignItems="flex-end" justifyContent="space-between">
+                <IngredientSortBy
+                  isAscending={isAscending}
+                  setIsAscending={setIsAscending}
+                  setSortBy={setSortBy}
+                  sortBy={sortBy}
+                />
+                <IngredientToggle filter={filter} setFilter={setFilter} />
+              </HStack>
+            </Stack>
 
             <Stack spacing="4">
-              {ingredients.isLoading ? (
+              {ingredientsQuery.isLoading ? (
                 range(0, 3).map((i) => <Skeleton key={i} borderRadius="md" h="32" />)
-              ) : ingredients.isError ? (
+              ) : ingredientsQuery.isError ? (
                 <Alert status="error">
                   <AlertIcon />
                   <AlertTitle>Could not retrieve ingredients.</AlertTitle>
                 </Alert>
-              ) : !ingredients.data?.length ? (
+              ) : !sortedIngredients.length ? (
                 <Alert>
                   <AlertIcon />
                   <AlertTitle>No ingredients found.</AlertTitle>
                 </Alert>
               ) : (
-                ingredients.data?.map((ingredient) => (
+                sortedIngredients.map((ingredient) => (
                   <Ingredient key={ingredient.id} ingredient={ingredient} />
                 ))
               )}
@@ -78,78 +107,6 @@ export default function Ingredients() {
   )
 }
 
-function IngredientToggle({
-  filter,
-  setFilter,
-}: {
-  filter: StockFilter
-  setFilter: Dispatch<SetStateAction<StockFilter>>
-}) {
-  const { getRootProps, getRadioProps } = useRadioGroup({
-    name: 'ingredient',
-    value: filter,
-    onChange: (value: StockFilter) => setFilter(value),
-  })
-
-  const group = getRootProps()
-
-  return (
-    <HStack
-      {...group}
-      spacing="0"
-      sx={{
-        '> label:first-of-type > .ingredient-toggle': {
-          borderLeftRadius: 'md',
-        },
-        '> label:last-of-type > .ingredient-toggle': {
-          borderRightRadius: 'md',
-        },
-      }}
-    >
-      {filterOptions.map((value) => {
-        const radio = getRadioProps({ value })
-        return (
-          <IngredientToggleOption key={value} {...radio}>
-            {startCase(value)}
-          </IngredientToggleOption>
-        )
-      })}
-    </HStack>
-  )
-}
-
-function IngredientToggleOption(props: UseRadioProps & { children: ReactNode }) {
-  const { getInputProps, getCheckboxProps } = useRadio(props)
-
-  const input = getInputProps()
-  const checkbox = getCheckboxProps()
-
-  return (
-    <Box as="label">
-      <input {...input} />
-      <Box
-        {...checkbox}
-        _checked={{
-          bg: 'blue.500',
-          color: 'white',
-        }}
-        _focus={{
-          boxShadow: 'outline',
-        }}
-        bg="white"
-        boxShadow="sm"
-        className="ingredient-toggle"
-        cursor="pointer"
-        fontWeight="medium"
-        px={3}
-        py={2}
-      >
-        {props.children}
-      </Box>
-    </Box>
-  )
-}
-
 function Ingredient({ ingredient }: { ingredient: IngredientType }) {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const {
@@ -158,7 +115,24 @@ function Ingredient({ ingredient }: { ingredient: IngredientType }) {
     onClose: onCloseCocktailPanel,
   } = useDisclosure()
 
-  const removeIngredient = trpc.removeIngredient.useMutation()
+  const toast = useToast({
+    position: 'top-right',
+  })
+
+  const utils = trpc.useContext()
+
+  const removeIngredient = trpc.removeIngredient.useMutation({
+    onSuccess() {
+      utils.getAllIngredients.invalidate()
+
+      toast({
+        status: 'success',
+        title: 'Successfully deleted ingredient',
+      })
+    },
+  })
+
+  const cocktails = trpc.getCocktailsForIngredient.useQuery({ id: ingredient.id })
 
   return (
     <>
@@ -177,15 +151,17 @@ function Ingredient({ ingredient }: { ingredient: IngredientType }) {
 
         <CardFooter>
           <ButtonGroup justifyContent="flex-end" size="sm" spacing="1" w="full">
-            <Button onClick={onOpenCocktailPanel}>View Cocktails</Button>
+            <Button onClick={onOpenCocktailPanel}>
+              View Cocktails ({cocktails.data?.length ?? 0})
+            </Button>
             <Button onClick={onOpen}>Edit</Button>
-            <Button
+            <IconButton
+              aria-label="Remove ingredient"
               colorScheme="red"
+              icon={<Icon as={MdDelete} boxSize="5" />}
               isLoading={removeIngredient.isLoading}
               onClick={() => removeIngredient.mutate({ id: ingredient.id })}
-            >
-              Remove
-            </Button>
+            />
           </ButtonGroup>
         </CardFooter>
       </Card>

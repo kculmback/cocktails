@@ -7,6 +7,7 @@ import { getCocktailsForIngredient } from './getCocktailsForIngredient'
 import { getCocktailsForTag } from './getCocktailsForTag'
 import { getIngredient } from './getIngredient'
 import { getTagsForCocktail } from './getTagsForCocktail'
+import { removeCocktail } from './removeCocktail'
 import { removeIngredient } from './removeIngredient'
 import { upsertCocktail } from './upsertCocktail'
 import { upsertIngredient } from './upsertIngredient'
@@ -21,6 +22,7 @@ export const appRouter = router({
   getCocktailsForTag,
   getIngredient,
   getTagsForCocktail,
+  removeCocktail,
   removeIngredient,
   upsertCocktail,
   upsertIngredient,

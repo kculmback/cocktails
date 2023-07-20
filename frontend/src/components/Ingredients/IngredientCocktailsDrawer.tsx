@@ -64,7 +64,7 @@ export function IngredientCocktailsDrawer({ ingredient, onClose }: IngredientCoc
         </DrawerBody>
 
         <DrawerFooter>
-          <Button>Close</Button>
+          <Button onClick={onClose}>Close</Button>
         </DrawerFooter>
       </DrawerContent>
     </Drawer>

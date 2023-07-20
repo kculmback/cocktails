@@ -2,13 +2,14 @@ import { ButtonLink, InStockBadge } from '@/components'
 import { Cocktail } from '@/schema'
 import { trpc } from '@/utils/trpc'
 import {
+  ButtonGroup,
   Card,
   CardBody,
   CardFooter,
   CardProps,
-  forwardRef,
-  Heading,
   HStack,
+  Heading,
+  Icon,
   IconButton,
   ImageProps,
   Skeleton,
@@ -17,11 +18,13 @@ import {
   Text,
   Wrap,
   WrapItem,
+  forwardRef,
+  useToast,
 } from '@chakra-ui/react'
 import { isNil, range } from 'lodash-es'
-import { MdOpenInNew } from 'react-icons/md'
-import { CocktailImage } from './CocktailImage'
+import { MdDelete, MdOpenInNew } from 'react-icons/md'
 import type { SetOptional } from 'type-fest'
+import { CocktailImage } from './CocktailImage'
 
 export type CocktailCardProp = {
   cocktail: SetOptional<Cocktail, 'inStock'>
@@ -87,13 +90,43 @@ export const CocktailCard = forwardRef<CocktailCardProp, 'div'>(function Cocktai
 
         {!!includeActions && (
           <CardFooter pt="0">
-            <HStack justifyContent="flex-end" w="full">
+            <ButtonGroup justifyContent="flex-end" spacing="1" w="full">
               <ButtonLink href={`/cocktails/${cocktail.id}`}>View</ButtonLink>
               <ButtonLink href={`/cocktails/${cocktail.id}/edit`}>Edit</ButtonLink>
-            </HStack>
+              <RemoveCocktail cocktailId={cocktail.id} />
+            </ButtonGroup>
           </CardFooter>
         )}
       </Stack>
     </Card>
   )
 })
+
+function RemoveCocktail({ cocktailId }: { cocktailId: string }) {
+  const toast = useToast({
+    position: 'top-right',
+  })
+
+  const utils = trpc.useContext()
+
+  const removeCocktail = trpc.removeCocktail.useMutation({
+    onSuccess() {
+      utils.getAllCocktails.invalidate()
+
+      toast({
+        status: 'success',
+        title: 'Successfully deleted cocktail',
+      })
+    },
+  })
+
+  return (
+    <IconButton
+      aria-label="Remove ingredient"
+      colorScheme="red"
+      icon={<Icon as={MdDelete} boxSize="5" />}
+      isLoading={removeCocktail.isLoading}
+      onClick={() => removeCocktail.mutate({ id: cocktailId })}
+    />
+  )
+}
