@@ -37,7 +37,11 @@ export function Navigation() {
             </HStack>
 
             <Menu>
-              <MenuButton as={IconButton} icon={<Icon as={MdMenu} />} />
+              <MenuButton
+                as={IconButton}
+                display={{ base: 'flex', lg: 'none' }}
+                icon={<Icon as={MdMenu} />}
+              />
               <MenuList>
                 <MenuItem as={Link} href="/">
                   Home
