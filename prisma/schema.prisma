@@ -1,0 +1,73 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Cocktail {
+  id           String                   @id @default(uuid()) @db.Uuid
+  createdAt    DateTime                 @default(now())
+  updatedAt    DateTime                 @updatedAt
+  label        String
+  url          String?
+  image        String?
+  description  String?
+  instructions String?
+  tags         TagsOnCocktails[]
+  ingredients  IngredientsOnCocktails[]
+}
+
+model Ingredient {
+  id                   String                   @id @default(uuid()) @db.Uuid
+  createdAt            DateTime                 @default(now())
+  updatedAt            DateTime                 @updatedAt
+  label                String
+  description          String?
+  inStock              Boolean
+  cocktails            IngredientsOnCocktails[]
+  mainIngredients      AlternateIngredients[]   @relation("MainIngredient")
+  alternateIngredients AlternateIngredients[]   @relation("AlternateIngredient")
+}
+
+model AlternateIngredients {
+  mainIngredient        Ingredient @relation("MainIngredient", fields: [mainIngredientId], references: [id])
+  mainIngredientId      String     @db.Uuid
+  alternateIngredient   Ingredient @relation("AlternateIngredient", fields: [alternateIngredientId], references: [id])
+  alternateIngredientId String     @db.Uuid
+
+  @@id([mainIngredientId, alternateIngredientId])
+}
+
+model IngredientsOnCocktails {
+  cocktail     Cocktail   @relation(fields: [cocktailId], references: [id])
+  cocktailId   String     @db.Uuid
+  ingredient   Ingredient @relation(fields: [ingredientId], references: [id])
+  ingredientId String     @db.Uuid
+  amount       String
+
+  @@id([cocktailId, ingredientId])
+}
+
+model Tag {
+  id        String            @id @default(uuid()) @db.Uuid
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+  label     String
+  cocktails TagsOnCocktails[]
+}
+
+model TagsOnCocktails {
+  cocktail   Cocktail @relation(fields: [cocktailId], references: [id])
+  cocktailId String   @db.Uuid
+  tag        Tag      @relation(fields: [tagId], references: [id])
+  tagId      String   @db.Uuid
+
+  @@id([cocktailId, tagId])
+}
