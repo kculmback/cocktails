@@ -1,4 +1,4 @@
-import { ButtonLink, Markdown } from '@/components'
+import { ButtonLink, InStockBadge, Markdown } from '@/components'
 import { CocktailImage } from '@/components/Cocktails/CocktailImage'
 import { trpc } from '@/utils/trpc'
 import {
@@ -91,13 +91,16 @@ export default function CocktailDetail() {
                     </ButtonGroup>
                   </HStack>
 
-                  <Wrap spacing="1">
-                    {(cocktail.data.tags ?? []).map((tag) => (
-                      <WrapItem key={tag.id}>
-                        <Tag colorScheme="blue">{tag.label}</Tag>
-                      </WrapItem>
-                    ))}
-                  </Wrap>
+                  <HStack justifyContent="space-between">
+                    <Wrap spacing="1">
+                      {(cocktail.data.tags ?? []).map((tag) => (
+                        <WrapItem key={tag.id}>
+                          <Tag colorScheme="blue">{tag.label}</Tag>
+                        </WrapItem>
+                      ))}
+                    </Wrap>
+                    <InStockBadge inStock={cocktail.data?.inStock} />
+                  </HStack>
                 </Stack>
               </CardHeader>
               <CardBody pt="0">

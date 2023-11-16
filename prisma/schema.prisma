@@ -32,17 +32,8 @@ model Ingredient {
   description          String?
   inStock              Boolean
   cocktails            IngredientsOnCocktails[]
-  mainIngredients      AlternateIngredients[]   @relation("MainIngredient")
-  alternateIngredients AlternateIngredients[]   @relation("AlternateIngredient")
-}
-
-model AlternateIngredients {
-  mainIngredient        Ingredient @relation("MainIngredient", fields: [mainIngredientId], references: [id])
-  mainIngredientId      String     @db.Uuid
-  alternateIngredient   Ingredient @relation("AlternateIngredient", fields: [alternateIngredientId], references: [id])
-  alternateIngredientId String     @db.Uuid
-
-  @@id([mainIngredientId, alternateIngredientId])
+  alternateIngredients Ingredient[]             @relation("AlternateIngredients")
+  mainIngredients      Ingredient[]             @relation("AlternateIngredients")
 }
 
 model IngredientsOnCocktails {

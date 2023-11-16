@@ -304,7 +304,12 @@ function IngredientRow({ form, index, remove, update }: IngredientRowProps) {
 
       {!!newIngredientLabel && (
         <IngredientFormDrawer
-          ingredient={{ label: newIngredientLabel, description: '', inStock: true }}
+          ingredient={{
+            label: newIngredientLabel,
+            description: '',
+            inStock: true,
+            alternateIngredients: [],
+          }}
           onClose={(ingredient) => {
             if (!!ingredient) {
               update(index, {

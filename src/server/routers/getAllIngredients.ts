@@ -13,6 +13,7 @@ export const getAllIngredients = procedure
   )
   .query(async ({ input }) => {
     const ingredientsDb = await getAllIngredientsDb(input?.filter)
+
     const ingredients: IngredientWithRelations[] = ingredientsDb.map(
       ({ cocktails: cocktailsDb, ...ingredient }) => {
         const cocktails = cocktailsDb.map(({ cocktail }) => cocktail)

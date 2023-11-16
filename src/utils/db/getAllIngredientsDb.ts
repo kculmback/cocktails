@@ -8,6 +8,8 @@ export async function getAllIngredientsDb(stockFilter: StockFilter = 'all') {
     },
     orderBy: { label: 'asc' },
     include: {
+      mainIngredients: { orderBy: { label: 'asc' } },
+      alternateIngredients: { orderBy: { label: 'asc' } },
       cocktails: { orderBy: { cocktail: { label: 'asc' } }, include: { cocktail: true } },
     },
   })

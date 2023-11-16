@@ -25,8 +25,11 @@ import {
   HStack,
   Icon,
   IconButton,
+  ListItem,
   Skeleton,
   Stack,
+  Text,
+  UnorderedList,
   useDisclosure,
   useToast,
 } from '@chakra-ui/react'
@@ -133,7 +136,37 @@ function Ingredient({ ingredient }: { ingredient: IngredientWithRelations }) {
           </HStack>
         </CardHeader>
 
-        <CardBody py="0">{ingredient.description ?? 'No description'}</CardBody>
+        <CardBody py="0">
+          <Stack>
+            <Text>{ingredient.description || 'No description'}</Text>
+
+            {!!ingredient.mainIngredients.length && (
+              <Stack spacing="0">
+                <Text fontSize="sm" fontWeight="medium">
+                  Main Ingredients
+                </Text>
+                <UnorderedList>
+                  {ingredient.mainIngredients.map((ingredient) => (
+                    <ListItem key={ingredient.id}>{ingredient.label}</ListItem>
+                  ))}
+                </UnorderedList>
+              </Stack>
+            )}
+
+            {!!ingredient.alternateIngredients.length && (
+              <Stack spacing="0">
+                <Text fontSize="sm" fontWeight="medium">
+                  Alternate Ingredients
+                </Text>
+                <UnorderedList>
+                  {ingredient.alternateIngredients.map((ingredient) => (
+                    <ListItem key={ingredient.id}>{ingredient.label}</ListItem>
+                  ))}
+                </UnorderedList>
+              </Stack>
+            )}
+          </Stack>
+        </CardBody>
 
         <CardFooter>
           <ButtonGroup justifyContent="flex-end" size="sm" spacing="1" w="full">
