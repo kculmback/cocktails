@@ -5,7 +5,10 @@ export function getCocktailDb(id: string) {
     where: { id },
     orderBy: { label: 'asc' },
     include: {
-      ingredients: { orderBy: { ingredient: { label: 'asc' } }, include: { ingredient: true } },
+      ingredients: {
+        orderBy: { ingredient: { label: 'asc' } },
+        include: { ingredient: { include: { alternateIngredients: true } } },
+      },
       tags: { orderBy: { tag: { label: 'asc' } }, include: { tag: true } },
     },
   })

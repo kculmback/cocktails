@@ -21,7 +21,10 @@ export const getCocktail = procedure
 
     const cocktail: CocktailWithRelations = {
       ...cocktailDb,
-      inStock: ingredients.every(({ inStock }) => inStock),
+      inStock: ingredients.every(
+        ({ inStock, alternateIngredients }) =>
+          inStock || alternateIngredients.some(({ inStock }) => inStock)
+      ),
       ingredients,
       tags: cocktailDb.tags.map(({ tag }) => tag),
     }

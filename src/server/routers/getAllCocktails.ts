@@ -24,7 +24,10 @@ export const getAllCocktails = procedure
 
         return {
           ...cocktail,
-          inStock: ingredients.every(({ inStock }) => inStock),
+          inStock: ingredients.every(
+            ({ inStock, alternateIngredients }) =>
+              inStock || alternateIngredients.some(({ inStock }) => inStock)
+          ),
           ingredients,
           tags,
         }

@@ -19,6 +19,7 @@ import {
   Stack,
   Tag,
   Text,
+  UnorderedList,
   Wrap,
   WrapItem,
   chakra,
@@ -112,11 +113,20 @@ export default function CocktailDetail() {
                       Ingredients
                     </Heading>
                     <OrderedList pl="6">
-                      {cocktail.data.ingredients.map(({ id, label, amount }) => (
-                        <ListItem key={id}>
-                          {label} - {amount}
-                        </ListItem>
-                      ))}
+                      {cocktail.data.ingredients.map(
+                        ({ id, label, amount, alternateIngredients }) => (
+                          <ListItem key={id}>
+                            {label} - {amount}
+                            {!!alternateIngredients.length && (
+                              <UnorderedList fontSize="xs">
+                                {alternateIngredients.map((ingredient) => (
+                                  <ListItem key={ingredient.id}>{ingredient.label}</ListItem>
+                                ))}
+                              </UnorderedList>
+                            )}
+                          </ListItem>
+                        )
+                      )}
                     </OrderedList>
                   </Stack>
 
