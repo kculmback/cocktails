@@ -1,4 +1,4 @@
-import { CocktailSchema, CocktailWithRelations, IngredientSchema, TagSchema } from '@/schema'
+import { BaseIngredientSchema, CocktailSchema, CocktailWithRelations, TagSchema } from '@/schema'
 import { upsertCocktailDb } from '@/utils/db/upsertCocktailDb'
 import { z } from 'zod'
 import { procedure } from '../trpc'
@@ -6,7 +6,7 @@ import { procedure } from '../trpc'
 export const UpsertCocktailSchema = CocktailSchema.omit({ id: true, inStock: true }).and(
   z.object({
     id: z.string().uuid().optional(),
-    ingredients: z.array(IngredientSchema.and(z.object({ amount: z.string().min(1) }))),
+    ingredients: z.array(BaseIngredientSchema.and(z.object({ amount: z.string().min(1) }))),
     tags: z.array(TagSchema).optional(),
   })
 )
