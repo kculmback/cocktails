@@ -1,5 +1,10 @@
-import { BaseIngredientSchema, CocktailSchema, CocktailWithRelations, TagSchema } from '@/schema'
-import { upsertCocktailDb } from '@/utils/db/upsertCocktailDb'
+import {
+  BaseIngredientSchema,
+  CocktailSchema,
+  CocktailWithRelations,
+  TagSchema,
+} from '../../schema'
+import { upsertCocktailDb } from '../db'
 import { z } from 'zod'
 import { procedure } from '../trpc'
 

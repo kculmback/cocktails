@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { procedure } from '../trpc'
-import { getIngredientDb } from '@/utils/db'
-import { IngredientWithRelations } from '@/schema'
+import { getIngredientDb } from '../db'
+import { IngredientWithRelations } from '../../schema'
 
 export const getIngredient = procedure
   // using zod schema to validate and infer input values

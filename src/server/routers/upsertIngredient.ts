@@ -1,6 +1,5 @@
-import { IngredientSchema } from '@/schema'
-import { BaseIngredientSchema } from '@/schema/Ingredient'
-import { upsertIngredientDb } from '@/utils/db/upsertIngredientDb'
+import { BaseIngredientSchema, IngredientSchema } from '../../schema'
+import { upsertIngredientDb } from '../db'
 import { z } from 'zod'
 import { procedure } from '../trpc'
 

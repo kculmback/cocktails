@@ -1,7 +1,7 @@
-import { IngredientWithRelations, StockFilterSchema } from '@/schema'
+import { IngredientWithRelations, StockFilterSchema } from '../../schema'
 import { z } from 'zod'
 import { procedure } from '../trpc'
-import { getAllIngredientsDb } from '@/utils/db'
+import { getAllIngredientsDb } from '../db'
 
 export const getAllIngredients = procedure
   .input(

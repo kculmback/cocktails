@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { procedure } from '../trpc'
-import { getCocktailDb } from '@/utils/db'
-import { CocktailWithRelations } from '@/schema'
+import { getCocktailDb } from '../db'
+import { CocktailWithRelations } from '../../schema'
 
 export const getCocktail = procedure
   .input(

@@ -1,5 +1,5 @@
-import { CocktailWithRelations, StockFilterSchema } from '@/schema'
-import { getAllCocktailsDb } from '@/utils/db'
+import { CocktailWithRelations, StockFilterSchema } from '../../schema'
+import { getAllCocktailsDb } from '../db'
 import { z } from 'zod'
 import { procedure } from '../trpc'
 

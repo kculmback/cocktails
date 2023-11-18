@@ -1,5 +1,5 @@
-import { TagSchema } from '@/schema'
-import { upsertTagDb } from '@/utils/db'
+import { TagSchema } from '../../schema'
+import { upsertTagDb } from '../db'
 import { z } from 'zod'
 import { procedure } from '../trpc'
 
