@@ -5,6 +5,7 @@ export const RemoveIngredientSchema = z.object({ id: z.string() })
 
 export const removeIngredient = procedure
   .input(RemoveIngredientSchema)
-  .mutation(async ({ input }) => {
-    const { id } = input
+  // .mutation(async ({ input }) => {
+  .mutation(async () => {
+    // const { id } = input
   })
