@@ -10,7 +10,7 @@ const { z } = require('zod')
 const envSchema = z.object({
   DATABASE_URL: z.string(),
   DIRECT_URL: z.string(),
-  EMAIL_WHITELIST: z.string(),
+  EMAIL_WHITELIST: z.string().optional(),
   GOOGLE_ID: z.string(),
   GOOGLE_SECRET: z.string(),
   NODE_ENV: z.enum(['development', 'test', 'production']),
