@@ -6,4 +6,8 @@ import { appRouter } from '../../../server/routers/_app'
 export default trpcNext.createNextApiHandler({
   router: appRouter,
   createContext: () => ({}),
+  onError(opts) {
+    // eslint-disable-next-line no-console
+    console.error('Error:', opts.error)
+  },
 })
