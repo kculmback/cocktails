@@ -1,8 +1,12 @@
+import { trpc } from '@/utils/trpc'
 import { Container, Heading, Stack, Text } from '@chakra-ui/react'
 import Head from 'next/head'
 
 export default function Home() {
-  // const cocktailsQuery = trpc.getAllCocktails.useQuery({ filter: 'inStock' })
+  const cocktailsQuery = trpc.getAllCocktails.useQuery({ filter: 'inStock' })
+
+  // eslint-disable-next-line no-console
+  console.log(cocktailsQuery.data)
 
   // const { cocktails, query, setQuery, searchResults, tag, setTag, tags } = useSearchCocktails({
   //   cocktails: cocktailsQuery.data,
