@@ -3,6 +3,7 @@ export type { Cocktail } from './Cocktail'
 export { CocktailWithRelationsSchema } from './CocktailWithRelations'
 export type { CocktailWithRelations } from './CocktailWithRelations'
 export {
+  BaseIngredientSchema,
   CocktailIngredientSchema,
   IngredientSchema,
   IngredientWithRelationsSchema,

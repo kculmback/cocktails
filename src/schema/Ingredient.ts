@@ -22,8 +22,8 @@ export type CocktailIngredient = z.infer<typeof CocktailIngredientSchema>
 
 export const IngredientWithRelationsSchema = IngredientSchema.and(
   z.object({
-    mainIngredients: z.array(IngredientSchema),
-    alternateIngredients: z.array(IngredientSchema),
+    mainIngredients: z.array(BaseIngredientSchema),
+    alternateIngredients: z.array(BaseIngredientSchema),
     cocktails: z.array(CocktailSchema.omit({ inStock: true })),
   })
 )

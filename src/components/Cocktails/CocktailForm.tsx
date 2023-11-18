@@ -159,7 +159,13 @@ export function CocktailForm({ cocktail, onSubmitted }: CocktailFormProps) {
             onClick={() =>
               ingredientsFieldArray.append({
                 amount: '',
-                ingredient: { id: '', description: '', inStock: true, label: '' },
+                ingredient: {
+                  id: '',
+                  description: '',
+                  inStock: true,
+                  label: '',
+                  alternateIngredients: [],
+                },
               })
             }
           >

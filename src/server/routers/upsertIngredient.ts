@@ -1,4 +1,5 @@
 import { IngredientSchema } from '@/schema'
+import { BaseIngredientSchema } from '@/schema/Ingredient'
 import { upsertIngredientDb } from '@/utils/db/upsertIngredientDb'
 import { z } from 'zod'
 import { procedure } from '../trpc'
@@ -6,7 +7,7 @@ import { procedure } from '../trpc'
 export const UpsertIngredientSchema = IngredientSchema.omit({ id: true }).and(
   z.object({
     id: z.string().uuid().optional(),
-    alternateIngredients: z.array(IngredientSchema),
+    alternateIngredients: z.array(BaseIngredientSchema),
   })
 )
 

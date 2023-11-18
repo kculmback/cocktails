@@ -14,7 +14,7 @@ export async function upsertCocktailDb({ cocktail, ingredients, tags }: UpsertCo
     ? await prisma.cocktail.update({
         data: cocktail,
         include: {
-          ingredients: { include: { ingredient: true } },
+          ingredients: { include: { ingredient: { include: { alternateIngredients: true } } } },
           tags: { include: { tag: true } },
         },
         where: { id: cocktail.id },
@@ -22,7 +22,7 @@ export async function upsertCocktailDb({ cocktail, ingredients, tags }: UpsertCo
     : await prisma.cocktail.create({
         data: cocktail,
         include: {
-          ingredients: { include: { ingredient: true } },
+          ingredients: { include: { ingredient: { include: { alternateIngredients: true } } } },
           tags: { include: { tag: true } },
         },
       })
@@ -77,7 +77,7 @@ async function updateCocktailIngredients({
           },
         },
         include: {
-          ingredient: true,
+          ingredient: { include: { alternateIngredients: true } },
         },
       })
     })
