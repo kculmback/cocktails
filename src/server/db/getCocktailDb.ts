@@ -1,15 +1,15 @@
-import { prisma } from './prisma'
+// import { prisma } from './prisma'
 
-export function getCocktailDb(id: string) {
-  return prisma.cocktail.findFirst({
-    where: { id },
-    orderBy: { label: 'asc' },
-    include: {
-      ingredients: {
-        orderBy: { ingredient: { label: 'asc' } },
-        include: { ingredient: { include: { alternateIngredients: true } } },
-      },
-      tags: { orderBy: { tag: { label: 'asc' } }, include: { tag: true } },
-    },
-  })
-}
+// export function getCocktailDb(id: string) {
+//   return prisma.cocktail.findFirst({
+//     where: { id },
+//     orderBy: { label: 'asc' },
+//     include: {
+//       ingredients: {
+//         orderBy: { ingredient: { label: 'asc' } },
+//         include: { ingredient: { include: { alternateIngredients: true } } },
+//       },
+//       tags: { orderBy: { tag: { label: 'asc' } }, include: { tag: true } },
+//     },
+//   })
+// }

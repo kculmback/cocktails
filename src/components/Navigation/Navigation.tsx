@@ -1,17 +1,5 @@
-import { ButtonLink, Link } from '@/components'
-import {
-  Box,
-  Button,
-  HStack,
-  Icon,
-  IconButton,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
-} from '@chakra-ui/react'
+import { Box, Button, HStack } from '@chakra-ui/react'
 import { signIn, signOut, useSession } from 'next-auth/react'
-import { MdMenu } from 'react-icons/md'
 
 export function Navigation() {
   const { data: session } = useSession()
@@ -19,7 +7,7 @@ export function Navigation() {
   return (
     <HStack bg="white" justifyContent="space-between" mb="6" px="4" py="2" shadow="md">
       <Box>
-        {!!session && (
+        {/* {!!session && (
           <>
             <HStack display={{ base: 'none', lg: 'flex' }}>
               <ButtonLink href="/" size="sm">
@@ -58,7 +46,7 @@ export function Navigation() {
               </MenuList>
             </Menu>
           </>
-        )}
+        )} */}
       </Box>
 
       {!!session ? (

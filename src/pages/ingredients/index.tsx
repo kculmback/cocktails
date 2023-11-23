@@ -1,51 +1,14 @@
-import {
-  ingredientFilterOptions,
-  IngredientFormDrawer,
-  IngredientSortBy,
-  IngredientToggle,
-  InStockBadge,
-  useIngredientSortBy,
-} from '@/components'
-import { IngredientCocktailsDrawer } from '@/components/Ingredients/IngredientCocktailsDrawer'
-import { IngredientWithRelations } from '@/schema'
-import { trpc } from '@/utils/trpc'
-import {
-  Alert,
-  AlertIcon,
-  AlertTitle,
-  Button,
-  ButtonGroup,
-  Card,
-  CardBody,
-  CardFooter,
-  CardHeader,
-  chakra,
-  Container,
-  Heading,
-  HStack,
-  Icon,
-  IconButton,
-  ListItem,
-  Skeleton,
-  Stack,
-  Text,
-  UnorderedList,
-  useDisclosure,
-  useToast,
-} from '@chakra-ui/react'
-import { range } from 'lodash-es'
+import { chakra } from '@chakra-ui/react'
 import Head from 'next/head'
-import { useState } from 'react'
-import { MdDelete } from 'react-icons/md'
 
 export default function Ingredients() {
-  const [filter, setFilter] = useState(ingredientFilterOptions[0])
+  // const [filter, setFilter] = useState(ingredientFilterOptions[0])
 
-  const ingredientsQuery = trpc.getAllIngredients.useQuery({ filter })
+  // const ingredientsQuery = trpc.getAllIngredients.useQuery({ filter })
 
-  const { isAscending, setIsAscending, sortBy, setSortBy, sortedIngredients } = useIngredientSortBy(
-    ingredientsQuery.data
-  )
+  // const { isAscending, setIsAscending, sortBy, setSortBy, sortedIngredients } = useIngredientSortBy(
+  //   ingredientsQuery.data
+  // )
 
   return (
     <>
@@ -54,7 +17,7 @@ export default function Ingredients() {
       </Head>
 
       <chakra.main>
-        <Container py="8">
+        {/* <Container py="8">
           <Stack spacing="6">
             <Stack>
               <Heading as="h1" size="lg">
@@ -92,103 +55,103 @@ export default function Ingredients() {
               )}
             </Stack>
           </Stack>
-        </Container>
+        </Container> */}
       </chakra.main>
     </>
   )
 }
 
-function Ingredient({ ingredient }: { ingredient: IngredientWithRelations }) {
-  const { isOpen, onOpen, onClose } = useDisclosure()
-  const {
-    isOpen: isOpenCocktailPanel,
-    onOpen: onOpenCocktailPanel,
-    onClose: onCloseCocktailPanel,
-  } = useDisclosure()
+// function Ingredient({ ingredient }: { ingredient: IngredientWithRelations }) {
+//   const { isOpen, onOpen, onClose } = useDisclosure()
+//   const {
+//     isOpen: isOpenCocktailPanel,
+//     onOpen: onOpenCocktailPanel,
+//     onClose: onCloseCocktailPanel,
+//   } = useDisclosure()
 
-  const toast = useToast({
-    position: 'top-right',
-  })
+//   const toast = useToast({
+//     position: 'top-right',
+//   })
 
-  const utils = trpc.useContext()
+//   const utils = trpc.useContext()
 
-  const removeIngredient = trpc.removeIngredient.useMutation({
-    onSuccess() {
-      utils.getAllIngredients.invalidate()
+//   const removeIngredient = trpc.removeIngredient.useMutation({
+//     onSuccess() {
+//       utils.getAllIngredients.invalidate()
 
-      toast({
-        status: 'success',
-        title: 'Successfully deleted ingredient',
-      })
-    },
-  })
+//       toast({
+//         status: 'success',
+//         title: 'Successfully deleted ingredient',
+//       })
+//     },
+//   })
 
-  return (
-    <>
-      <Card size="sm">
-        <CardHeader>
-          <HStack justifyContent="space-between">
-            <Heading key={ingredient.id} as="h2" size="sm">
-              {ingredient.label}
-            </Heading>
+//   return (
+//     <>
+//       <Card size="sm">
+//         <CardHeader>
+//           <HStack justifyContent="space-between">
+//             <Heading key={ingredient.id} as="h2" size="sm">
+//               {ingredient.label}
+//             </Heading>
 
-            <InStockBadge inStock={ingredient.inStock} />
-          </HStack>
-        </CardHeader>
+//             <InStockBadge inStock={ingredient.inStock} />
+//           </HStack>
+//         </CardHeader>
 
-        <CardBody py="0">
-          <Stack>
-            <Text>{ingredient.description || 'No description'}</Text>
+//         <CardBody py="0">
+//           <Stack>
+//             <Text>{ingredient.description || 'No description'}</Text>
 
-            {!!ingredient.mainIngredients.length && (
-              <Stack spacing="0">
-                <Text fontSize="sm" fontWeight="medium">
-                  Main Ingredients
-                </Text>
-                <UnorderedList>
-                  {ingredient.mainIngredients.map((ingredient) => (
-                    <ListItem key={ingredient.id}>{ingredient.label}</ListItem>
-                  ))}
-                </UnorderedList>
-              </Stack>
-            )}
+//             {!!ingredient.mainIngredients.length && (
+//               <Stack spacing="0">
+//                 <Text fontSize="sm" fontWeight="medium">
+//                   Main Ingredients
+//                 </Text>
+//                 <UnorderedList>
+//                   {ingredient.mainIngredients.map((ingredient) => (
+//                     <ListItem key={ingredient.id}>{ingredient.label}</ListItem>
+//                   ))}
+//                 </UnorderedList>
+//               </Stack>
+//             )}
 
-            {!!ingredient.alternateIngredients.length && (
-              <Stack spacing="0">
-                <Text fontSize="sm" fontWeight="medium">
-                  Alternate Ingredients
-                </Text>
-                <UnorderedList>
-                  {ingredient.alternateIngredients.map((ingredient) => (
-                    <ListItem key={ingredient.id}>{ingredient.label}</ListItem>
-                  ))}
-                </UnorderedList>
-              </Stack>
-            )}
-          </Stack>
-        </CardBody>
+//             {!!ingredient.alternateIngredients.length && (
+//               <Stack spacing="0">
+//                 <Text fontSize="sm" fontWeight="medium">
+//                   Alternate Ingredients
+//                 </Text>
+//                 <UnorderedList>
+//                   {ingredient.alternateIngredients.map((ingredient) => (
+//                     <ListItem key={ingredient.id}>{ingredient.label}</ListItem>
+//                   ))}
+//                 </UnorderedList>
+//               </Stack>
+//             )}
+//           </Stack>
+//         </CardBody>
 
-        <CardFooter>
-          <ButtonGroup justifyContent="flex-end" size="sm" spacing="1" w="full">
-            <Button onClick={onOpenCocktailPanel}>
-              View Cocktails ({ingredient.cocktails.length ?? 0})
-            </Button>
-            <Button onClick={onOpen}>Edit</Button>
-            <IconButton
-              aria-label="Remove ingredient"
-              colorScheme="red"
-              icon={<Icon as={MdDelete} boxSize="5" />}
-              isLoading={removeIngredient.isLoading}
-              onClick={() => removeIngredient.mutate({ id: ingredient.id })}
-            />
-          </ButtonGroup>
-        </CardFooter>
-      </Card>
+//         <CardFooter>
+//           <ButtonGroup justifyContent="flex-end" size="sm" spacing="1" w="full">
+//             <Button onClick={onOpenCocktailPanel}>
+//               View Cocktails ({ingredient.cocktails.length ?? 0})
+//             </Button>
+//             <Button onClick={onOpen}>Edit</Button>
+//             <IconButton
+//               aria-label="Remove ingredient"
+//               colorScheme="red"
+//               icon={<Icon as={MdDelete} boxSize="5" />}
+//               isLoading={removeIngredient.isLoading}
+//               onClick={() => removeIngredient.mutate({ id: ingredient.id })}
+//             />
+//           </ButtonGroup>
+//         </CardFooter>
+//       </Card>
 
-      {isOpen && <IngredientFormDrawer ingredient={ingredient} onClose={onClose} />}
-      {isOpenCocktailPanel && (
-        <IngredientCocktailsDrawer ingredient={ingredient} onClose={onCloseCocktailPanel} />
-      )}
-    </>
-  )
-}
+//       {isOpen && <IngredientFormDrawer ingredient={ingredient} onClose={onClose} />}
+//       {isOpenCocktailPanel && (
+//         <IngredientCocktailsDrawer ingredient={ingredient} onClose={onCloseCocktailPanel} />
+//       )}
+//     </>
+//   )
+// }

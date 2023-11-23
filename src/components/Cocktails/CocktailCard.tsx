@@ -1,6 +1,5 @@
 import { ButtonLink, InStockBadge } from '@/components'
 import { Cocktail, CocktailWithRelations } from '@/schema'
-import { trpc } from '@/utils/trpc'
 import {
   ButtonGroup,
   Card,
@@ -9,7 +8,6 @@ import {
   CardProps,
   HStack,
   Heading,
-  Icon,
   IconButton,
   ImageProps,
   Stack,
@@ -18,10 +16,9 @@ import {
   Wrap,
   WrapItem,
   forwardRef,
-  useToast,
 } from '@chakra-ui/react'
 import { isNil } from 'lodash-es'
-import { MdDelete, MdOpenInNew } from 'react-icons/md'
+import { MdOpenInNew } from 'react-icons/md'
 import type { SetOptional } from 'type-fest'
 import { CocktailImage } from './CocktailImage'
 
@@ -91,7 +88,8 @@ export const CocktailCard = forwardRef<CocktailCardProp, 'div'>(function Cocktai
             {!!includeActions && (
               <>
                 <ButtonLink href={`/cocktails/${cocktail.id}/edit`}>Edit</ButtonLink>
-                <RemoveCocktail cocktailId={cocktail.id} />
+                <RemoveCocktail />
+                {/* <RemoveCocktail cocktailId={cocktail.id} /> */}
               </>
             )}
           </ButtonGroup>
@@ -101,31 +99,34 @@ export const CocktailCard = forwardRef<CocktailCardProp, 'div'>(function Cocktai
   )
 })
 
-function RemoveCocktail({ cocktailId }: { cocktailId: string }) {
-  const toast = useToast({
-    position: 'top-right',
-  })
+// function RemoveCocktail({ cocktailId }: { cocktailId: string }) {
+function RemoveCocktail() {
+  // const toast = useToast({
+  //   position: 'top-right',
+  // })
 
-  const utils = trpc.useContext()
+  // const utils = trpc.useUtils()
 
-  const removeCocktail = trpc.removeCocktail.useMutation({
-    onSuccess() {
-      utils.getAllCocktails.invalidate()
+  // const removeCocktail = trpc.removeCocktail.useMutation({
+  //   onSuccess() {
+  //     utils.getAllCocktails.invalidate()
 
-      toast({
-        status: 'success',
-        title: 'Successfully deleted cocktail',
-      })
-    },
-  })
+  //     toast({
+  //       status: 'success',
+  //       title: 'Successfully deleted cocktail',
+  //     })
+  //   },
+  // })
 
-  return (
-    <IconButton
-      aria-label="Remove ingredient"
-      colorScheme="red"
-      icon={<Icon as={MdDelete} boxSize="5" />}
-      isLoading={removeCocktail.isLoading}
-      onClick={() => removeCocktail.mutate({ id: cocktailId })}
-    />
-  )
+  return <></>
+
+  // return (
+  //   <IconButton
+  //     aria-label="Remove ingredient"
+  //     colorScheme="red"
+  //     icon={<Icon as={MdDelete} boxSize="5" />}
+  //     isLoading={removeCocktail.isLoading}
+  //     onClick={() => removeCocktail.mutate({ id: cocktailId })}
+  //   />
+  // )
 }
