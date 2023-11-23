@@ -4,8 +4,8 @@ export type { Cocktail } from './Cocktail'
 export { CocktailWithRelationsSchema } from './CocktailWithRelations'
 export type { CocktailWithRelations } from './CocktailWithRelations'
 
-export { LocationSchema } from './Location'
-export type { Location } from './Location'
+export { LocationSchema, UpsertLocationSchema } from './Location'
+export type { Location, UpsertLocation } from './Location'
 
 export {
   BaseIngredientSchema,

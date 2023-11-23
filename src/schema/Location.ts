@@ -8,3 +8,11 @@ export const LocationSchema = z.object({
 })
 
 export type Location = z.infer<typeof LocationSchema>
+
+export const UpsertLocationSchema = LocationSchema.omit({ id: true }).and(
+  z.object({
+    id: z.string().uuid().optional(),
+  })
+)
+
+export type UpsertLocation = z.infer<typeof UpsertLocationSchema>

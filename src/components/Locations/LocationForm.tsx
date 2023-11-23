@@ -1,5 +1,4 @@
-import { Location } from '@/schema'
-import { UpsertLocation } from '@/server/routers/locations/upsertLocation'
+import { Location, UpsertLocation } from '@/schema'
 import { trpc } from '@/utils/trpc'
 import {
   Button,
