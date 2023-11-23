@@ -1,15 +1,11 @@
-import { CocktailsList, SearchCocktails, useSearchCocktails } from '@/components'
-import { trpc } from '@/utils/trpc'
-import { Alert, AlertIcon, AlertTitle, Container, Heading, Skeleton, Stack } from '@chakra-ui/react'
-import { range } from 'lodash-es'
 import Head from 'next/head'
 
 export default function AllCocktails() {
-  const cocktailsQuery = trpc.getAllCocktails.useQuery({ filter: 'all' })
+  // const cocktailsQuery = trpc.getAllCocktails.useQuery({ filter: 'all' })
 
-  const { cocktails, query, setQuery, searchResults, tag, setTag, tags } = useSearchCocktails({
-    cocktails: cocktailsQuery.data,
-  })
+  // const { cocktails, query, setQuery, searchResults, tag, setTag, tags } = useSearchCocktails({
+  //   cocktails: cocktailsQuery.data,
+  // })
 
   return (
     <>
@@ -18,7 +14,7 @@ export default function AllCocktails() {
       </Head>
 
       <main>
-        <Container maxW="container.lg">
+        {/* <Container maxW="container.lg">
           <Stack>
             <Stack spacing="4">
               <Heading as="h1" size="lg">
@@ -53,7 +49,7 @@ export default function AllCocktails() {
               )}
             </Stack>
           </Stack>
-        </Container>
+        </Container> */}
       </main>
     </>
   )

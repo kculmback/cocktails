@@ -1,51 +1,21 @@
-import { ButtonLink, InStockBadge, Markdown } from '@/components'
-import { CocktailImage } from '@/components/Cocktails/CocktailImage'
-import { trpc } from '@/utils/trpc'
-import {
-  Alert,
-  AlertIcon,
-  AlertTitle,
-  ButtonGroup,
-  Card,
-  CardBody,
-  CardHeader,
-  Container,
-  HStack,
-  Heading,
-  IconButton,
-  ListItem,
-  OrderedList,
-  Skeleton,
-  Stack,
-  Tag,
-  Text,
-  UnorderedList,
-  Wrap,
-  WrapItem,
-  chakra,
-} from '@chakra-ui/react'
-import { useSession } from 'next-auth/react'
+import { chakra } from '@chakra-ui/react'
 import Head from 'next/head'
-import { useRouter } from 'next/router'
-import { MdOpenInNew } from 'react-icons/md'
 
 export default function CocktailDetail() {
-  const router = useRouter()
-  const id = router.query.id as string
+  // const router = useRouter()
+  // const id = router.query.id as string
 
-  const cocktail = trpc.getCocktail.useQuery({ id }, { enabled: !!id })
+  // const cocktail = trpc.getCocktail.useQuery({ id }, { enabled: !!id })
 
-  const { status } = useSession()
-  const isLoggedIn = status === 'authenticated'
+  // const { status } = useSession()
+  // const isLoggedIn = status === 'authenticated'
 
   return (
     <>
-      <Head>
-        <title>Cocktails - {cocktail.data?.label}</title>
-      </Head>
+      <Head>{/* <title>Cocktails - {cocktail.data?.label}</title> */}</Head>
 
       <chakra.main>
-        <Container py="8">
+        {/* <Container py="8">
           {cocktail.isLoading ? (
             <Skeleton borderRadius="md" h="44" />
           ) : cocktail.isError ? (
@@ -140,7 +110,7 @@ export default function CocktailDetail() {
               </CardBody>
             </Card>
           )}
-        </Container>
+        </Container> */}
       </chakra.main>
     </>
   )

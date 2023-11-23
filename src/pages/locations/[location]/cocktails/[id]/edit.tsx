@@ -1,14 +1,11 @@
-import { CocktailForm } from '@/components'
-import { trpc } from '@/utils/trpc'
-import { Card, CardBody, CardHeader, chakra, Container, Heading, Stack } from '@chakra-ui/react'
+import { chakra } from '@chakra-ui/react'
 import Head from 'next/head'
-import { useRouter } from 'next/router'
 
 export default function CocktailEdit() {
-  const router = useRouter()
-  const id = router.query.id as string
+  // const router = useRouter()
+  // const id = router.query.id as string
 
-  const cocktail = trpc.getCocktail.useQuery({ id }, { enabled: !!id })
+  // const cocktail = trpc.getCocktail.useQuery({ id }, { enabled: !!id })
 
   return (
     <>
@@ -17,7 +14,7 @@ export default function CocktailEdit() {
       </Head>
 
       <chakra.main>
-        <Container py="8">
+        {/* <Container py="8">
           <Card>
             <CardHeader>
               <Heading as="h1" size="lg">
@@ -37,7 +34,7 @@ export default function CocktailEdit() {
               </Stack>
             </CardBody>
           </Card>
-        </Container>
+        </Container> */}
       </chakra.main>
     </>
   )
